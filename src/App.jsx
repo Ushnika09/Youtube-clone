@@ -1,24 +1,22 @@
-import './App.css'
-
-import React, { useState } from 'react'
-import Header from './Components/Header'
-import Sidebar from './Components/Sidebar'
-import { Outlet } from 'react-router-dom'
+import { useState,useEffect } from "react";
+import "./App.css";
+import RootLayout from "./layout/RootLayout";
+import ModeContext from "./context/ModeContext";
+import { useData } from "./context/DataContext";
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [mode, setMode] = useState(false);
+  const {loading,data}=useData()
+  console.log(loading);
+  console.log(data);
 
   return (
-    <div className='flex flex-col h-screen'>
-      <Header onMenuClick={() => setSidebarOpen((open) => !open)} />
-      <div className='flex flex-1'>
-        <Sidebar open={sidebarOpen} />
-        <main className='flex-1 bg-gray-50 p-4 overflow-auto'>
-          <Outlet />
-        </main>
+    <ModeContext.Provider value={{ mode, setMode }}>
+      <div className={`flex flex-col h-screen `}>
+        <RootLayout />
       </div>
-    </div>
-  )
+    </ModeContext.Provider>
+  );
 }
 
-export default App
+export default App;

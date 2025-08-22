@@ -1,101 +1,81 @@
+import React, { useContext } from "react";
+import { FaHistory, FaHome } from "react-icons/fa";
+import { SiYoutubeshorts } from "react-icons/si";
 import {
-  FaHome,
-  FaFire,
-  FaHistory,
-  FaThumbsUp,
-  FaRegCompass,
-  FaRegClock,
-  FaPlayCircle,
-  FaListUl,
-  FaUserFriends,
-  FaChevronDown,
-  FaMusic,
-  FaGamepad,
-  FaTrophy,
-  FaLightbulb,
-  FaNewspaper,
-  FaFilm,
-  FaBroadcastTower,
-  FaShoppingBag,
-  FaPodcast,
-} from "react-icons/fa";
+  MdOutlineSubscriptions,
+  MdPlaylistPlay,
+  MdOutlineWatchLater,
+  MdOutlineThumbUp,
+  MdOutlineFileDownload,
+} from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import ModeContext from "../context/ModeContext";
 
-const mainLinks = [
-  { to: "/", label: "Home", icon: <FaHome />, end: true },
-  { to: "/explore", label: "Explore", icon: <FaRegCompass /> },
-  { to: "/shorts", label: "Shorts", icon: <FaPlayCircle /> },
-  { to: "/subscriptions", label: "Subscriptions", icon: <FaUserFriends /> },
-];
+function Sidebar({ open }) {
+  const { mode } = useContext(ModeContext);
 
-const libraryLinks = [
-  { to: "/library", label: "Library", icon: <FaListUl /> },
-  { to: "/history", label: "History", icon: <FaHistory /> },
-  { to: "/your-videos", label: "Your Videos", icon: <FaFilm /> },
-  { to: "/watch-later", label: "Watch Later", icon: <FaRegClock /> },
-  { to: "/liked", label: "Liked Videos", icon: <FaThumbsUp /> },
-];
+  const menuItems = [
+    { name: "Home", icon: <FaHome />, path: "/" },
+    { name: "Shorts", icon: <SiYoutubeshorts />, path: "/shorts" },
+    { name: "Subscriptions", icon: <MdOutlineSubscriptions />, path: "/subscriptions" },
+    { name: "History", icon: <FaHistory />, path: "/history" },
+    { name: "Downloads", icon: <MdOutlineFileDownload />, path: "/downloads" },
+    { name: "Playlists", icon: <MdPlaylistPlay />, path: "/playlists" },
+    { name: "Watch Later", icon: <MdOutlineWatchLater />, path: "/watchlater" },
+    { name: "Liked Videos", icon: <MdOutlineThumbUp />, path: "/liked" },
+  ];
 
-const exploreLinks = [
-  { to: "/trending", label: "Trending", icon: <FaFire /> },
-  { to: "/music", label: "Music", icon: <FaMusic /> },
-  { to: "/gaming", label: "Gaming", icon: <FaGamepad /> },
-  { to: "/sports", label: "Sports", icon: <FaTrophy /> },
-  { to: "/news", label: "News", icon: <FaNewspaper /> },
-  { to: "/live", label: "Live", icon: <FaBroadcastTower /> },
-  { to: "/learning", label: "Learning", icon: <FaLightbulb /> },
-  { to: "/fashion", label: "Fashion & Beauty", icon: <FaShoppingBag /> },
-  { to: "/podcasts", label: "Podcasts", icon: <FaPodcast /> },
-];
+  const visibleItems = open ? menuItems : menuItems.slice(0, 5);
 
-const SidebarSection = ({ links, open }) => (
-  <nav className="flex flex-col gap-1 mb-2">
-    {links.map(({ to, label, icon, end }) => (
-      <NavLink
-        key={to}
-        to={to}
-        end={end}
-        className={({ isActive }) =>
-          `flex items-center gap-4 px-5 py-3 rounded-lg text-gray-800 hover:bg-gray-100 transition font-medium ${
-            isActive ? "bg-gray-200 font-bold" : ""
-          } ${!open ? "justify-center" : ""}`
-        }
-        title={!open ? label : undefined}
-      >
-        <span className="text-xl">{icon}</span>
-        {open && <span>{label}</span>}
-      </NavLink>
-    ))}
-  </nav>
-);
-
-const Sidebar = ({ open }) => (
-  <aside
-    className={`${
-      open ? "w-60" : "w-16"
-    } h-screen bg-white border-r shadow-sm flex flex-col py-4 transition-all duration-200 overflow-y-auto`}
-  >
-    <SidebarSection links={mainLinks} open={open} />
-    <hr className="my-2" />
-    <SidebarSection links={libraryLinks} open={open} />
-    <hr className="my-2" />
-    <div className={`${open ? "px-5 mb-1 text-xs text-gray-500" : "hidden"}`}>
-      Explore
-    </div>
-    <SidebarSection links={exploreLinks} open={open} />
-    <button
-      className={`flex items-center gap-4 px-5 py-3 rounded-lg text-gray-800 hover:bg-gray-100 transition font-medium mt-2 ${
-        open ? "" : "justify-center"
-      }`}
-      tabIndex={0}
+  return (
+    <div
+      className={`h-screen ${
+        mode ? "bg-black text-white" : "bg-white"
+      } transition-all duration-300 ${open ? "w-54" : "w-20"}`}
     >
-      <FaChevronDown className="text-xl" />
-      {open && <span>Show more</span>}
-    </button>
-    <div className={`mt-auto px-5 text-xs text-gray-500 ${open ? "" : "hidden"}`}>
-      © {new Date().getFullYear()} YouTube Clone
+      <nav className="flex flex-col mt-4">
+        {visibleItems.map((item, index) => (
+          <React.Fragment key={item.name}>
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3  duration-300 transition-colors ${
+                  isActive
+                    ? mode
+                      ? "bg-gray-100/50"
+                      : "bg-gray-400/70"
+                    : mode
+                    ? "hover:bg-gray-200/30"
+                    : "hover:bg-gray-400/30"
+                }`
+              }
+            >
+              {open ? (
+                <>
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-sm">{item.name}</span>
+                </>
+              ) : (
+                <div className="flex flex-col justify-center items-center w-full">
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-[0.7rem]">{item.name}</span>
+                </div>
+              )}
+            </NavLink>
+
+            {/* ✅ Separator after the 3rd item (Subscriptions) */}
+            {open && index === 2 && (
+              <hr
+                className={`my-2 border-t ${
+                  mode ? "border-gray-700" : "border-gray-300"
+                }`}
+              />
+            )}
+          </React.Fragment>
+        ))}
+      </nav>
     </div>
-  </aside>
-);
+  );
+}
 
 export default Sidebar;
