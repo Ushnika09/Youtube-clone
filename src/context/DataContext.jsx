@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { FetchData } from '../../utils/Rapidapi'
 
-export const DataContext=createContext()//
+export const DataContext=createContext()
 
 export default function DataProvider({children}){
     const [loading,setLoading]=useState(true)
@@ -13,9 +13,11 @@ export default function DataProvider({children}){
     },[val])
 
     const FetchAllData=(query)=>{
+        setLoading(true)
         FetchData(`search/?q=${query}`).then((res)=>{
-            setData(res)
+            setData(res.contents)
             setLoading(false)
+            
         })
     }
 

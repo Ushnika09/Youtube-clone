@@ -29,11 +29,11 @@ function Sidebar({ open }) {
 
   return (
     <div
-      className={`h-screen ${
+      className={`h-screen fixed top-[4.6rem] shadow-2xl left-0 z-10 ${
         mode ? "bg-black text-white" : "bg-white"
-      } transition-all duration-300 ${open ? "w-54" : "w-20"}`}
+      } transition-all  duration-300 ${open ? "w-54 " : "w-20"}`}
     >
-      <nav className="flex flex-col mt-4">
+      <nav className="flex flex-col ">
         {visibleItems.map((item, index) => (
           <React.Fragment key={item.name}>
             <NavLink

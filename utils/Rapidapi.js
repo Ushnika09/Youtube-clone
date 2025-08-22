@@ -14,13 +14,13 @@ const options = {
 	}
 };
 
-console.log("Headers:", options);
+// console.log("Headers:", options);
 
 export const FetchData=async(url)=>{
     try{
         // url=protocol + hostname + path
         let {data}=await axios.get(`${BASE_URL}/${url}`,options)//destructuring limits size 
-        console.log("Final URL:", `${BASE_URL}/${url}`);
+        // console.log("Final URL:", `${BASE_URL}/${url}`);
         return data
     }catch(err){
         console.log("Error fetching api data",err);

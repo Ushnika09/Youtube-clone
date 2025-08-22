@@ -27,8 +27,9 @@ function Header({ onMenuClick }) {
   }, []);
 
   return (
-    <header
-      className={`flex items-center justify-between gap-1 px-4 py-4 shadow-3xl transition-all duration-300  ${
+    <div className="fixed top-0 z-10 w-full">
+      <header
+      className={`flex items-center justify-between gap-1 px-4 py-4 shadow-2xl transition-all duration-300  ${
         mode ? "bg-black" : "bg-white"
       }`}
     >
@@ -112,6 +113,7 @@ function Header({ onMenuClick }) {
         </div>
       </div>
     </header>
+    </div>
   );
 }
 
