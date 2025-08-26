@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import ModeContext from "../context/ModeContext";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 function Header({ onMenuClick }) {
   const { mode, setMode } = useContext(ModeContext);
@@ -29,7 +30,7 @@ function Header({ onMenuClick }) {
   return (
     <div className="fixed top-0 z-10 w-full">
       <header
-      className={`flex items-center justify-between gap-1 px-4 py-4 shadow-2xl transition-all duration-300  ${
+      className={`flex items-center justify-between gap-1 px-4 py-4 shadow transition-all duration-300  ${
         mode ? "bg-black" : "bg-white"
       }`}
     >
@@ -46,7 +47,7 @@ function Header({ onMenuClick }) {
             }`}
           />
         </button>
-        <div className="flex gap-1 justify-center items-center relative">
+        <Link to={"/"} className="flex gap-1 justify-center items-center relative">
           <FaYoutube className="text-red-600 text-3xl hover:cursor-pointer" />
           <span
             className={`font-bold text-2xl text-gray-800 hover:cursor-pointer tracking-tighter ${
@@ -60,7 +61,7 @@ function Header({ onMenuClick }) {
               status ? "bg-green-600" : "bg-orange-700"
             }`}
           ></div>
-        </div>
+        </Link>
       </div>
 
       {/* Middle */}

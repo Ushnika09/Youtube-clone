@@ -14,8 +14,9 @@ export default function DataProvider({children}){
 
     const FetchAllData=(query)=>{
         setLoading(true)
-        FetchData(`search/?q=${query}`).then((res)=>{
-            setData(res.contents)
+        FetchData(`search?query=${query}`).then((res)=>{
+            setData(res.data)
+            console.log(data)
             setLoading(false)
             
         })
