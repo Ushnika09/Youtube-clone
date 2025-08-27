@@ -25,7 +25,7 @@ function Home() {
             {data
               .filter((item) => item.type == "video")
               .map((item, ind) => {
-                return <Videocard key={ind} video={item} />;
+                return <Videocard key={ind} video={item} mode={mode}/>;
               })}
           </div>
         </div>

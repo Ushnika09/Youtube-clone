@@ -5,13 +5,13 @@ import { RiVerifiedBadgeFill } from "react-icons/ri";
 import millify from "millify";
 import { GoDotFill } from "react-icons/go";
 
-function Videocard({ video }) {
-  // console.log(video, "card");
+function Videocard({ video,mode }) {
+  
   return (
-    <Link to={`/video/${video?.videoId}`}>
-      <div>
+    <Link to={`/video/${video?.videoId}` }>
+      <div className={`${mode?"text-white":"text-black"}`}>
         {/* thumbnail */}
-        <div className="relative rounded-lg  overflow-hidden flex-1">
+        <div className={`relative rounded-lg  overflow-hidden flex-1 ${mode?"text-white":"text-black"}`}>
           {video?.richThumbnail?.[0]?.url ? (
             //movingThumbnails
             <img
@@ -44,7 +44,7 @@ function Videocard({ video }) {
             />
           </div>
           {/* video details */}
-          <div className="flex flex-col overflow-hidden text-gray-600 text-sm">
+          <div className={`flex flex-col overflow-hidden text-gray-600 text-sm  ${mode?"text-white":"text-black"}`}>
             <h1 className="line-clamp-2 font-semibold">{video?.title}</h1>
             <h1 className="flex flex-row justify-start gap-2 items-center ">
               {video?.author?.title}

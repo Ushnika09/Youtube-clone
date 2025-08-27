@@ -4,7 +4,7 @@ import ModeContext from "../context/ModeContext";
 
 function VideoDescription({ video, matchedVideo }) {
   const { mode } = useContext(ModeContext);
-  console.log(video);
+  // console.log(video);
   const [expanded, setExpanded] = useState(false);
   return (
     <div

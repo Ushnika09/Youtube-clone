@@ -8,11 +8,26 @@ import {
 } from "react-icons/fa";
 import ModeContext from "../context/ModeContext";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Header({ onMenuClick }) {
   const { mode, setMode } = useContext(ModeContext);
   const [status, setStatus] = useState(navigator.onLine);
+  const [query, setQuery] = useState(""); // ✅ controlled input
+  const navigate = useNavigate(); // ✅ for navigation
+
+  // ✅ handle search
+  const handleSearch = () => {
+    if (query.trim()) {
+      navigate(`/search/${query}`);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   useEffect(() => {
     const handleOnline = () => setStatus(true);
@@ -69,11 +84,16 @@ function Header({ onMenuClick }) {
         <input
           type="text"
           placeholder="Search"
+          value={query} // ✅ controlled input
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           className={`min-w-[5rem] px-4 py-2 pl-6 border rounded-l-full focus:outline-none flex-1 items-center justify-center ${
             mode ? " bg-gray-50" : "bg-white"
           }`}
         />
-        <button className="bg-gray-100 px-4 py-3 border rounded-r-full hover:cursor-pointer">
+        <button
+        onClick={handleSearch}
+        className="bg-gray-100 px-4 py-3 border rounded-r-full hover:cursor-pointer">
           <FaSearch className="" />
         </button>
 

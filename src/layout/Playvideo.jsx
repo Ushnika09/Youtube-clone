@@ -24,12 +24,12 @@ function Playvideo() {
   return (
     // outermost div
     <div
-      className={`pl-10 min-h-screen pt-[3.8rem] flex gap-5 ${
+      className={`pl-10 max-w-screen    mr-0 pt-[3.8rem] flex gap-5 ${
         mode ? "bg-black" : "bg-white"
       }`}
     >{/* necessary style flex-row =>vid+ suggestion */}
 
-      <div className=" flex flex-col">
+      <div className=" flex flex-col w-[700px]">
         <VideoSec id={id} video={video}/>
         <Comments id={id}/>
       </div>

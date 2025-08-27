@@ -21,7 +21,7 @@ function Comments({ id }) {
     FetchComments();
   }, [id]);
   return (
-    <div>
+    <div className="">
       <h1 className="font-bold text-2xl pl-3 py-3">
         {Comments?.commentsCount} Comments
       </h1>

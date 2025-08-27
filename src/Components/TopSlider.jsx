@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import ModeContext from "../context/ModeContext";
+import { DataContext } from "../context/DataContext";
 
 function TopSlider() {
   const categories = [
@@ -13,7 +14,6 @@ function TopSlider() {
     "Sports",
     "Learning",
     "Comedy",
-    ,
     "Videoblogging",
     "Entertainment",
     "Education",
@@ -29,18 +29,33 @@ function TopSlider() {
     "Trailers",
   ];
 
-  const {mode}=useContext(ModeContext)
+  const { mode } = useContext(ModeContext);
+  const { setVal, val } = useContext(DataContext);
 
   return (
-    <div className={`flex gap-3 scroll-smooth transition-all duration-300 overflow-x-auto no-scrollbar pt-[4.5rem] pl-10 ${mode ?"bg-black " :"bg-white"}`}>
-      {/* no-scroolbar =>custom */}
-      <div className={`  flex gap-5`}>
+    <div
+      className={`flex gap-3 scroll-smooth transition-all duration-300 overflow-x-auto no-scrollbar pt-[4.5rem] pl-10 ${
+        mode ? "bg-black " : "bg-white"
+      }`}
+    >
+      <div className="flex gap-5">
         {categories.map((cat) => {
-            return(
-                <h1 key={cat} className={`flex-nowrap rounded-xl px-4 py-1.5  text-sm font-medium  ${mode ?"text-white bg-gray-500/70" :"text-black bg-gray-300"}`}>{cat}</h1>
-            )
-        
-      })}
+          return (
+            <button
+              key={cat}
+              onClick={() => setVal(cat)} 
+              className={`flex-nowrap rounded-xl px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                val === cat
+                  ? "bg-green-600 text-white"
+                  : mode
+                  ? "text-white bg-gray-500/70"
+                  : "text-black bg-gray-300"
+              }`}
+            >
+              {cat}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

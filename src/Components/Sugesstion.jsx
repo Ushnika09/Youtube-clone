@@ -25,12 +25,13 @@ function Sugesstion({id}) {
     FetchRelated()
   },[id])
   return (
-    <div className={`flex flex-col  gap-3.5 pr-6 ${mode ? "text-white" : "text-black"}`}>
+    <div className={`flex flex-col  gap-3.5 flex-1 ${mode ? "text-white" : "text-black"}`}>
       {related.map((video)=>{
+        if(video.type!=="video") return
         return(
           <Link to={`/video/${video?.videoId}`} className='flex  justify-center gap-2.5' >
         {/* thumbnail */}
-        <div className="relative rounded-lg  overflow-hidden  h-24 w-50">
+        <div className="relative rounded-lg  overflow-hidden  h-24 w-42">
           {video?.richThumbnail?.[0]?.url ? (
             //movingThumbnails
             <img
