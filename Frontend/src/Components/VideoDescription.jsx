@@ -33,7 +33,7 @@ function VideoDescription({ video }) {
       {video?.description?.length > 100 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-blue-600 mt-2 hover:underline font-bold transition-all duration-300"
+          className="text-blue-600/90 mt-2 hover:underline font-bold transition-all duration-300"
         >
           {expanded ? "Show less" : "...Read more"}
         </button>
