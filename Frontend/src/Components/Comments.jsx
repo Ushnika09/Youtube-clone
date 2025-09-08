@@ -1,0 +1,303 @@
+import React, { useState, useEffect, useContext } from "react";
+import { FetchData } from "../../utils/Rapidapi";
+import ModeContext from "../context/ModeContext";
+import UserContext from "../context/UserContext";
+import { PiThumbsDown, PiThumbsUpFill } from "react-icons/pi";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import moment from "moment";
+
+export default function Comments({ id }) {
+  const { mode } = useContext(ModeContext);
+  const { user } = useContext(UserContext);
+
+  const [rapidComments, setRapidComments] = useState([]);
+  const [userComments, setUserComments] = useState([]);
+  const [allComments, setAllComments] = useState([]);
+
+  const [newComment, setNewComment] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [menuOpenId, setMenuOpenId] = useState(null);
+
+  const token = localStorage.getItem("jwtYT");
+
+  // Fetch RapidAPI comments
+  useEffect(() => {
+    async function fetchRapid() {
+      try {
+        const data = await FetchData(`comments?id=${id}`);
+        setRapidComments(data?.data || []);
+      } catch (err) {
+        console.log("Error fetching RapidAPI comments", err);
+      }
+    }
+    fetchRapid();
+  }, [id]);
+
+  // Fetch user comments from backend
+  useEffect(() => {
+    async function fetchUserComments() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/comments/${id}`);
+        const data = await res.json();
+        setUserComments(data);
+      } catch (err) {
+        console.log("Error fetching user comments", err);
+      }
+    }
+    fetchUserComments();
+  }, [id, user]);
+
+  // Merge both comments
+  useEffect(() => {
+  const merged = [
+    ...userComments.map((c) => ({
+      _id: c._id,
+      type: "user",
+      name: c.userId?.name || "User",
+      avatar: c.userId?.name ? c.userId.name[0].toUpperCase() : "U",
+      text: c.text,
+      createdAt: c.createdAt,
+      likes: c.likes || 0,
+      userAction: null, // NEW: track per-user like/dislike
+    })),
+    ...rapidComments.map((c) => ({
+      _id: c.commentId,
+      type: "rapid",
+      name: c.authorText,
+      avatar: c.authorText ? c.authorText[0].toUpperCase() : "R",
+      text: c.textDisplay,
+      createdAt: c.publishedTimeText,
+      likes: c.likesCount || 0,
+      thumbnail: c?.authorThumbnail?.[0]?.url,
+      userAction: null, // NEW
+    })),
+  ];
+  setAllComments(merged);
+}, [userComments, rapidComments]);
+
+  // Add comment
+  const handleAdd = async () => {
+    if (!newComment.trim()) return;
+    if (!user) {
+      alert("Login to comment");
+      return;
+    }
+    try {
+      const res = await fetch("http://localhost:5000/api/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ videoId: id, text: newComment }),
+      });
+      const data = await res.json();
+      setUserComments([data, ...userComments]);
+      setNewComment("");
+    } catch (err) {
+      console.log("Add comment error:", err);
+    }
+  };
+
+  // Update comment
+  const handleUpdate = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/comments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text: editText }),
+      });
+      const updated = await res.json();
+      setUserComments(userComments.map((c) => (c._id === id ? updated : c)));
+      setEditId(null);
+      setEditText("");
+    } catch (err) {
+      console.log("Update comment error:", err);
+    }
+  };
+
+  // Delete comment
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/comments/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserComments(userComments.filter((c) => c._id !== id));
+    } catch (err) {
+      console.log("Delete comment error:", err);
+    }
+  };
+
+  // Like & Dislike (frontend only for now)
+  const handleLike = (id) => {
+    setAllComments((prev) =>
+      prev.map((c) =>
+        c._id === id ? { ...c, likes: (Number(c.likes) || 0) + 1 } : c
+      )
+    );
+  };
+
+  const handleDislike = (id) => {
+    setAllComments((prev) =>
+      prev.map((c) =>
+        c._id === id ? { ...c, likes: Math.max((c.likes || 0) - 1, 0) } : c
+      )
+    );
+  };
+
+  return (
+    <div className={`${mode ? "text-white" : "text-black"} mt-2.5`}>
+      <h1 className="font-bold text-2xl pl-3 py-3">
+        {allComments.length} Comments
+      </h1>
+
+      {/* Add Comment Box */}
+      <div className="flex gap-3 items-center mb-6 px-3">
+        {/* Avatar */}
+        {user ? (
+          <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+            {user?.name?.[0]?.toUpperCase()}
+          </div>
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+            U
+          </div>
+        )}
+
+        <input
+          type="text"
+          placeholder={user ? "Add a comment..." : "Login to comment"}
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          disabled={!user}
+          className={`flex-1 px-4 py-2 border rounded-lg ${
+            mode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
+          }`}
+        />
+        <button
+          onClick={handleAdd}
+          disabled={!user}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Comment
+        </button>
+      </div>
+
+      {/* Comments List */}
+      <div className="space-y-4 mt-4">
+        {allComments.map((c) => (
+          <div key={c._id} className="flex gap-3 px-3 relative">
+            {/* Avatar */}
+            {c.thumbnail ? (
+              <img src={c.thumbnail} className="w-10 h-10 rounded-full" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+                {c.avatar}
+              </div>
+            )}
+
+            {/* Body */}
+            <div className="flex flex-col flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{c.name}</span>
+                <span className="text-sm text-gray-500">
+                  {c.type === "user"
+                    ? moment(c.createdAt).fromNow()
+                    : c.createdAt}
+                </span>
+              </div>
+
+              {/* If editing */}
+              {editId === c._id ? (
+                <>
+                  <input
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="px-2 py-1 border rounded flex-1"
+                  />
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      onClick={() => handleUpdate(c._id)}
+                      className="px-2 py-1 bg-green-600 text-white rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditId(null)}
+                      className="px-2 py-1 bg-gray-400 text-white rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm">{c.text}</p>
+              )}
+
+              {/* Edit/Delete menu for user comments */}
+              {c.type === "user" && c.name === user?.name && (
+                <div className="absolute right-5 top-2">
+                  <BsThreeDotsVertical
+                    className="cursor-pointer"
+                    onClick={() =>
+                      setMenuOpenId(menuOpenId === c._id ? null : c._id)
+                    }
+                  />
+                  {menuOpenId === c._id && (
+                    <div
+                      className={`absolute right-0 mt-1 w-28 rounded-lg shadow-md z-10 ${
+                        mode ? "bg-gray-800 text-white" : "bg-white text-black"
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          setEditId(c._id);
+                          setEditText(c.text);
+                          setMenuOpenId(null);
+                        }}
+                        className="block w-full text-left px-3 py-2 hover:bg-gray-200"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleDelete(c._id);
+                          setMenuOpenId(null);
+                        }}
+                        className="block w-full text-left px-3 py-2 hover:bg-gray-200 text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Like/Dislike for all comments */}
+              <div className="flex gap-2 text-sm mt-1 items-center">
+                <PiThumbsUpFill
+                  onClick={() => handleLike(c._id)}
+                  className={`text-xl cursor-pointer ${
+                    mode ? "text-white" : "text-black"
+                  }`}
+                />
+                <span>{c.likes || 0}</span>
+                <PiThumbsDown
+                  onClick={() => handleDislike(c._id)}
+                  className={`text-xl cursor-pointer ${
+                    mode ? "text-white" : "text-black"
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
