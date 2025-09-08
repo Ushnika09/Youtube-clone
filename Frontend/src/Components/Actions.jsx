@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { GoDownload } from "react-icons/go";
 import { BsThreeDots } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
@@ -12,34 +13,50 @@ function Actions({ video, mode }) {
 
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState(video?.likeCount || 0);
+  const [dislikes, setDislikes] = useState(video?.dislikeCount || 0);
 
   useEffect(() => {
-    setLikes(Number(video?.likeCount) || 0);
+    setLikes(video?.likeCount || 0);
+    setDislikes(video?.dislikeCount || 0);
   }, [video]);
 
-  const handleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikes(likes - 1);
-    } else {
-      setLiked(true);
-      setLikes(likes + 1);
-      if (disliked) setDisliked(false);
-    }
-  };
+  const handleLike = async () => {
+  try {
+    const action = liked ? "unlike" : "like";
+    setLiked(!liked);
+    if (disliked) setDisliked(false);
 
-  const handleDislike = () => {
-    if (disliked) {
-      setDisliked(false);
-    } else {
-      setDisliked(true);
-      if (liked) {
-        setLiked(false);
-        setLikes(likes - 1);
-      }
-    }
-  };
+    const res = await axios.patch(
+      `http://localhost:5000/videos/likes/${video.videoId}`,
+      { action }
+    );
+
+    setLikes(res.data.likeCount);
+    setDislikes(res.data.dislikeCount);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleDislike = async () => {
+  try {
+    const action = disliked ? "undislike" : "dislike";
+    setDisliked(!disliked);
+    if (liked) setLiked(false);
+
+    const res = await axios.patch(
+      `http://localhost:5000/videos/likes/${video.videoId}`,
+      { action }
+    );
+
+    setLikes(res.data.likeCount);
+    setDislikes(res.data.dislikeCount);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   // Close menu on outside click
   useEffect(() => {
@@ -62,9 +79,7 @@ function Actions({ video, mode }) {
             {video?.isVerified && <RiVerifiedBadgeFill />}
           </h1>
           {video?.subscriberCount && (
-            <span className="text-sm">
-              {millify(video?.subscriberCount)} Subscribers
-            </span>
+            <span className="text-sm">{millify(video?.subscriberCount)} Subscribers</span>
           )}
         </div>
         <button
@@ -87,21 +102,23 @@ function Actions({ video, mode }) {
             onClick={handleLike}
             className="flex items-center gap-1 cursor-pointer"
           >
-            <BiSolidLike className="text-xl" />
+            <BiSolidLike
+              className={`text-xl ${liked ? "text-blue-600" : ""}`}
+            />
             <span className="text-[1rem] font-medium">
               {likes ? millify(likes, { precision: 0 }) : ""}
             </span>
           </button>
 
-          <div
-            className={`h-6 mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`}
-          />
+          <div className={`h-6 mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`} />
 
           <button
             onClick={handleDislike}
             className="flex items-center gap-1 cursor-pointer"
           >
-            <BiSolidDislike className="text-xl" />
+            <BiSolidDislike
+              className={`text-xl ${disliked ? "text-blue-600" : ""}`}
+            />
           </button>
         </div>
 

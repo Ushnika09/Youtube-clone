@@ -121,3 +121,38 @@ export const getVideoById = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch video" });
   }
 };
+
+// PATCH /likes/:videoId
+export const updateLikes = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const { action } = req.body; // 'like' | 'unlike' | 'dislike' | 'undislike'
+
+    const video = await Video.findOne({ videoId });
+    if (!video) return res.status(404).json({ error: "Video not found" });
+
+    switch (action) {
+      case "like":
+        video.likeCount = (video.likeCount || 0) + 1;
+        if (video.dislikeCount > 0) video.dislikeCount -= 1;
+        break;
+      case "unlike":
+        video.likeCount = Math.max((video.likeCount || 0) - 1, 0);
+        break;
+      case "dislike":
+        video.dislikeCount = (video.dislikeCount || 0) + 1;
+        if (video.likeCount > 0) video.likeCount -= 1;
+        break;
+      case "undislike":
+        video.dislikeCount = Math.max((video.dislikeCount || 0) - 1, 0);
+        break;
+    }
+
+    await video.save();
+    res.json({ likeCount: video.likeCount, dislikeCount: video.dislikeCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update likes/dislikes" });
+  }
+};
+
