@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { GoDownload, GoThumbsdown, GoThumbsup } from "react-icons/go";
+import React, { useState, useRef, useEffect } from "react";
+import { GoDownload } from "react-icons/go";
 import { BsThreeDots } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
 import millify from "millify";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { BiSolidLike, BiSolidDislike } from "react-icons/bi";
 
-function Actions({ video, matchedVideo, mode }) {
+function Actions({ video, mode }) {
   const menuRef = useRef(null);
   const [isOpen, setOpen] = useState(false);
 
-  // ✅ Like/Dislike state
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [likes, setLikes] = useState(0);
@@ -42,7 +41,7 @@ function Actions({ video, matchedVideo, mode }) {
     }
   };
 
-  // ✅ Close menu if clicked outside
+  // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -55,19 +54,16 @@ function Actions({ video, matchedVideo, mode }) {
 
   return (
     <div className="flex flex-row gap-2.5 w-full justify-between">
-      {/* left */}
-      <div className="flex gap-9 items-center">
+      {/* Left: channel name + subscribe */}
+      <div className="flex gap-4 items-center">
         <div className="flex flex-col overflow-hidden w-[10rem]">
           <h1 className="flex flex-row justify-start gap-2 items-center font-bold text-nowrap text-xl">
-            <span className="truncate">{video?.channelTitle}</span>
-            <span>
-              {matchedVideo?.video?.author?.badges[0]?.type ===
-                "VERIFIED_CHANNEL" && <RiVerifiedBadgeFill />}
-            </span>
+            <span className="truncate">{video?.channelName}</span>
+            {video?.isVerified && <RiVerifiedBadgeFill />}
           </h1>
-          {video?.author?.stats?.subscribers && (
+          {video?.subscriberCount && (
             <span className="text-sm">
-              {video?.author?.stats?.subscribers} Subscribers
+              {millify(video?.subscriberCount)} Subscribers
             </span>
           )}
         </div>
@@ -80,47 +76,36 @@ function Actions({ video, matchedVideo, mode }) {
         </button>
       </div>
 
-      {/* right */}
-      <div className="flex gap-7 items-center">
+      {/* Right: Like, Dislike, Share, Menu */}
+      <div className="flex gap-4 items-center">
         <div
           className={`flex items-center px-4 py-1.5 rounded-3xl ${
             mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
           }`}
         >
-          {/* ✅ Like */}
           <button
             onClick={handleLike}
             className="flex items-center gap-1 cursor-pointer"
           >
-            {liked ? (
-              <BiSolidLike className="text-xl" />
-            ) : (
-              <GoThumbsup className="text-xl" />
-            )}
+            <BiSolidLike className="text-xl" />
             <span className="text-[1rem] font-medium">
               {likes ? millify(likes, { precision: 0 }) : ""}
             </span>
           </button>
 
-          {/* Divider */}
           <div
             className={`h-6 mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`}
-          ></div>
+          />
 
-          {/* ✅ Dislike */}
           <button
             onClick={handleDislike}
             className="flex items-center gap-1 cursor-pointer"
           >
-            {disliked ? (
-              <BiSolidDislike className="text-xl" />
-            ) : (
-              <GoThumbsdown className="text-xl" />
-            )}
+            <BiSolidDislike className="text-xl" />
           </button>
         </div>
 
-        {/* share */}
+        {/* Share */}
         <div
           className={`flex gap-1 items-center px-4 py-1.5 rounded-3xl ${
             mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
@@ -130,7 +115,7 @@ function Actions({ video, matchedVideo, mode }) {
           <span className="text-[1rem] font-medium">Share</span>
         </div>
 
-        {/* 3 dots */}
+        {/* 3 dots menu */}
         <div ref={menuRef}>
           <button
             onClick={() => setOpen(!isOpen)}

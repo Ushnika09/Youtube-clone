@@ -5,55 +5,63 @@ import { RiVerifiedBadgeFill } from "react-icons/ri";
 import millify from "millify";
 import { GoDotFill } from "react-icons/go";
 
-function Videocard({ video,mode }) {
-  
+function Videocard({ video, mode }) {
   return (
-    <Link to={`/video/${video?.videoId}` }>
-      <div className={`${mode?"text-white":"text-black"}`}>
-        {/* thumbnail */}
-        <div className={`relative rounded-lg  overflow-hidden flex-1 ${mode?"text-white":"text-black"}`}>
-          {video?.richThumbnail?.[0]?.url ? (
-            //movingThumbnails
+    <Link to={`/video/${video?.videoId}`}>
+      <div className={`${mode ? "text-white" : "text-black"}`}>
+        {/* Thumbnail */}
+        <div
+          className={`relative rounded-lg overflow-hidden flex-1 ${
+            mode ? "text-white" : "text-black"
+          }`}
+        >
+          {video?.richThumbnail ? (
+            // Moving Thumbnail (string now)
             <img
               onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
               className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0"
-              src={video?.richThumbnail[0]?.url}
-              alt=""
+              src={video?.richThumbnail}
+              alt={video?.title}
             />
           ) : (
-            //thumbnails
+            // Normal Thumbnail (array from MongoDB)
             <img
               onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
-              className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0 "
-              src={video?.thumbnail[0].url}
-              alt=""
+              className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0"
+              src={video?.thumbnails?.[0]?.url}
+              alt={video?.title}
             />
           )}
 
-          {/* timestamp */}
+          {/* Timestamp */}
           {video?.lengthText && <VideoTimer time={video?.lengthText} />}
         </div>
 
-        <div className=" flex mt-2.5 justify-start gap-3 ">
-          {/* channel logo */}
-          <div className=" h-10 w-10 rounded-full shrink-0">
+        <div className="flex mt-2.5 justify-start gap-3">
+          {/* Channel Logo */}
+          <div className="h-10 w-10 rounded-full shrink-0">
             <img
-              src={video?.channelAvatar[0]?.url}
+              src={video?.channelAvatar}
               className="rounded-full h-full w-full"
-              alt=""
+              alt={video?.channelName}
             />
           </div>
-          {/* video details */}
-          <div className={`flex flex-col overflow-hidden text-gray-600 text-sm  ${mode?"text-white":"text-black"}`}>
+
+          {/* Video Details */}
+          <div
+            className={`flex flex-col overflow-hidden text-gray-600 text-sm ${
+              mode ? "text-white" : "text-black"
+            }`}
+          >
             <h1 className="line-clamp-2 font-semibold">{video?.title}</h1>
-            <h1 className="flex flex-row justify-start gap-2 items-center ">
-              {video?.author?.title}
-              {video?.author?.badges[0]?.type === "VERIFIED_CHANNEL" && (
-                <RiVerifiedBadgeFill />
-              )}
+            <h1 className="flex flex-row justify-start gap-2 items-center">
+              {video?.channelName}
             </h1>
             <div className="flex gap-1.5 items-center">
-              <span>{millify(video?.viewCount || 0, { precision: 0 })} views</span><GoDotFill className="text-[0.5rem]"/>
+              <span>
+                {millify(video?.viewCount || 0, { precision: 0 })} views
+              </span>
+              <GoDotFill className="text-[0.5rem]" />
               <span>{video?.publishedTimeText}</span>
             </div>
           </div>

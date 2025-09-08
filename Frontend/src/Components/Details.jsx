@@ -1,21 +1,19 @@
-import millify from "millify";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext } from "react";
 import ModeContext from "../context/ModeContext";
 import { useData } from "../context/DataContext";
 import VideoDescription from "./VideoDescription";
 import Actions from "./Actions";
-import pic from "../assets/logo.png"
+import pic from "../assets/logo.png";
 
 function Details({ id, video }) {
   const { mode } = useContext(ModeContext);
   const { data } = useData();
-  console.log(data,"data details");
 
-  const matchedVideo = data.find((item) => item?.videoId === id);
-  const logo = matchedVideo?.channelAvatar[0].url 
-  console.log(video,"mv");
+  // Use passed video first, fallback to backend data
+  const matchedVideo = video || data.find((item) => item?.videoId === id);
+  const logo = matchedVideo?.channelAvatar || pic;
 
-
+  if (!matchedVideo) return <div>Video not found</div>;
 
   return (
     <div
@@ -23,23 +21,27 @@ function Details({ id, video }) {
         mode ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
-      {/* video title */}
-      <h1 className="text-xl font-bold text-wrap line-clamp-2 mt-2  mb-0">
-        {video?.title}
+      {/* Video title */}
+      <h1 className="text-xl font-bold line-clamp-2 mt-2 mb-0">
+        {matchedVideo?.title}
       </h1>
 
       <div className="flex gap-3 items-center my-1.5">
-        {/* channel logo + name + subscribe */}
-        <div className=" h-10 w-10 rounded-full flex ">
-          {/* channel logo */}
-          <img src={logo || pic} className="rounded-full h-10 w-10 shrink-0 border" />
+        {/* Channel logo */}
+        <div className="h-10 w-10 rounded-full flex">
+          <img
+            src={logo}
+            className="rounded-full h-10 w-10 shrink-0 border"
+            alt="Channel Logo"
+          />
         </div>
 
         {/* Actions */}
-        <Actions video={video} matchedVideo={matchedVideo} mode={mode} />
+        <Actions video={matchedVideo} mode={mode} />
       </div>
-      {/* video description */}
-      <VideoDescription video={video} matchedVideo={matchedVideo} />
+
+      {/* Video description */}
+      <VideoDescription video={matchedVideo} />
     </div>
   );
 }

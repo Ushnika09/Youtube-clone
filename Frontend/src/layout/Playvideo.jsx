@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import ModeContext from "../context/ModeContext";
 import { useParams } from "react-router-dom";
-import { FetchData } from "../../utils/Rapidapi";
+import axios from "axios";
 import Sugesstion from "../Components/Sugesstion";
 import VideoSec from "../Components/VideoSec";
 import Comments from "../Components/Comments";
@@ -9,31 +9,54 @@ import Comments from "../Components/Comments";
 function Playvideo() {
   const { mode } = useContext(ModeContext);
   const [video, setVideo] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   const { id } = useParams();
 
   useEffect(() => {
-    async function FetchVideoDetails() {
-      let data = await FetchData(`video/info?id=${id}`);
-      setVideo(data);
-      console.log(data,"Playvideo");
+    async function fetchVideoFromBackend() {
+      try {
+        setLoading(true);
+        // Fetch video by ID from backend
+        const res = await axios.get(`http://localhost:5000/api/videos/${id}`);
+        setVideo(res.data);
+        console.log(res.data, "Playvideo backend");
+      } catch (err) {
+        console.error("Video not found:", err.message);
+        setVideo(null);
+      } finally {
+        setLoading(false);
+      }
     }
-    FetchVideoDetails();
+
+    fetchVideoFromBackend();
   }, [id]);
 
-  return (
-    // outermost div
-    <div
-      className={`pl-10 max-w-screen    mr-0 pt-[3.8rem] flex gap-5 ${
-        mode ? "bg-black" : "bg-white"
-      }`}
-    >{/* necessary style flex-row =>vid+ suggestion */}
-
-      <div className=" flex flex-col w-[700px]">
-        <VideoSec id={id} video={video}/>
-        <Comments id={id}/>
+  if (loading)
+    return (
+      <div
+        className={`${mode ? "bg-black text-white" : "bg-white text-black"} h-screen flex items-center justify-center`}
+      >
+        Loading...
       </div>
-      <Sugesstion id={id}/>
+    );
+
+  if (!video)
+    return (
+      <div
+        className={`${mode ? "bg-black text-white" : "bg-white text-black"} h-screen flex items-center justify-center`}
+      >
+        Video not found
+      </div>
+    );
+
+  return (
+    <div className={`pl-10 max-w-screen pt-[3.8rem] flex gap-5 ${mode ? "bg-black" : "bg-white"}`}>
+      <div className="flex flex-col w-[700px]">
+        <VideoSec video={video} />
+        <Comments id={id} />
+      </div>
+      <Sugesstion id={id} />
     </div>
   );
 }

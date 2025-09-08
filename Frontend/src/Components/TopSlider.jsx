@@ -43,9 +43,9 @@ function TopSlider() {
           return (
             <button
               key={cat}
-              onClick={() => setVal(cat)}
+              onClick={() => setVal(cat.toLowerCase())}
               className={`flex-nowrap rounded-xl px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
-                val === cat
+                val === cat.toLowerCase()
                   ? mode
                     ? "bg-neutral-100/70 text-black"
                     : "bg-black text-white"
