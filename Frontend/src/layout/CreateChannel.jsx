@@ -11,11 +11,10 @@ function CreateChannel({ onClose }) {
 
   const [name, setName] = useState(user?.name || "");
   const [handle, setHandle] = useState(user ? `@${user.name.replace(/\s+/g, "")}` : "");
-  const [avatar, setAvatar] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const handleAvatarChange = (e) => setAvatar(e.target.files[0]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,22 +27,25 @@ function CreateChannel({ onClose }) {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("handle", handle);
-      if (avatar) formData.append("avatar", avatar);
-
       const token = localStorage.getItem("jwtYT");
-      const res = await axios.post("http://localhost:5000/api/channel/", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/channel/",
+        { name, handle, description, avatarUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
+      const newChannel = res.data;
+      
+      // Update user context
       setUser({ ...user, isChannel: true });
-      navigate("/my-channel");
-      onClose(); // ✅ close modal after success
+      
+      // Store channel ID in localStorage for immediate access
+      localStorage.setItem("channelIdYT", newChannel._id);
+      
+      // Navigate to the channel page
+      navigate(`/my-channel/${newChannel._id}`);
+      
+      onClose();
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Failed to create channel");
@@ -58,31 +60,25 @@ function CreateChannel({ onClose }) {
         mode ? "bg-[#181818] text-white" : "bg-white text-gray-900"
       }`}
     >
-      {/* Avatar */}
+      {/* Avatar Preview */}
       <div className="flex flex-col items-center gap-2">
         <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-          {avatar ? (
-            <img
-              src={URL.createObjectURL(avatar)}
-              alt="Avatar"
-              className="w-full h-full object-cover"
-            />
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
             <span className="text-5xl text-gray-500">👤</span>
           )}
         </div>
-        <label
-          htmlFor="avatar"
-          className="text-blue-500 font-medium hover:underline cursor-pointer"
-        >
-          Select picture
-        </label>
         <input
-          id="avatar"
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleAvatarChange}
+          type="text"
+          placeholder="Paste Image URL"
+          value={avatarUrl}
+          onChange={(e) => setAvatarUrl(e.target.value)}
+          className={`w-full px-4 py-2 rounded-md border mt-2 ${
+            mode
+              ? "bg-[#121212] border-gray-700 text-white"
+              : "bg-white border-gray-300 text-black"
+          }`}
         />
       </div>
 
@@ -118,18 +114,18 @@ function CreateChannel({ onClose }) {
           />
         </div>
 
-        {/* Disclaimer */}
-        <p className="text-xs text-gray-500 leading-snug">
-          By clicking Create channel, you agree to{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            YouTube’s Terms of Service
-          </a>
-          . Changes made to your name and profile picture are visible only on
-          YouTube and not other Google services.{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Learn more
-          </a>
-        </p>
+        <div>
+          <label className="block text-sm mb-1">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className={`w-full px-4 py-2 rounded-md border ${
+              mode
+                ? "bg-[#121212] border-gray-700 text-white"
+                : "bg-white border-gray-300 text-black"
+            }`}
+          />
+        </div>
 
         {/* Buttons */}
         <div className="flex justify-end gap-4 mt-2">

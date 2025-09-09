@@ -1,9 +1,15 @@
-import Channel from "../Model/ChannelModel.js";
+import Channel from "../Model/ChannelSchema.js";
+import User from "../Model/UserModel.js";
+import mongoose from "mongoose";
 
 // Create a new channel
 export const createChannel = async (req, res) => {
   try {
-    const { name, handle, description } = req.body;
+    const { name, handle, description, avatarUrl } = req.body;
+
+    if (!name || !handle) {
+      return res.status(400).json({ message: "Name and handle are required" });
+    }
 
     // Check if handle already exists
     const existing = await Channel.findOne({ handle });
@@ -16,15 +22,48 @@ export const createChannel = async (req, res) => {
       name,
       handle,
       description,
+      avatarUrl,
       isActive: true,
-      videos: [], // initially empty
+      videos: [],
     });
 
     await newChannel.save();
+
+    // Update the user to mark as channel and return updated doc
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { isChannel: true },
+      { new: true }
+    );
+
     res.status(201).json(newChannel);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to create channel" });
+  }
+};
+
+// Get single channel by id
+export const getChannelById = async (req, res) => {
+  try {
+    const channel = await Channel.findById(req.params.id).populate("userId", "name username");
+    if (!channel) return res.status(404).json({ message: "Channel not found" });
+    res.json(channel);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch channel" });
+  }
+};
+
+// Get channel by user ID
+export const getChannelByUserId = async (req, res) => {
+  try {
+    const channel = await Channel.findOne({ userId: req.params.userId });
+    if (!channel) return res.status(404).json({ message: "Channel not found" });
+    res.json(channel);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch channel" });
   }
 };
 
@@ -72,18 +111,5 @@ export const getAllChannels = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch channels" });
-  }
-};
-
-// Get single channel by id
-export const getChannelById = async (req, res) => {
-  try {
-    const channel = await Channel.findById(req.params.id).populate("userId", "name username");
-    if (!channel) return res.status(404).json({ message: "Channel not found" });
-
-    res.json(channel);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch channel" });
   }
 };

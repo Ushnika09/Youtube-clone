@@ -14,9 +14,12 @@ function Header({ onMenuClick }) {
   const { user } = useContext(UserContext);
   const hasChannel = user?.isChannel;
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  // const channelId = user._id;
+  const [loadingChannel, setLoadingChannel] = useState(false);
+  const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
 
-  const [isChannelModalOpen, setIsChannelModalOpen] = useState(false); // modal state
-
+  
+// console.log(channelId);
   const handleSearch = () => {
     if (query.trim()) navigate(`/search/${query}`);
   };
@@ -38,9 +41,33 @@ function Header({ onMenuClick }) {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchChannelId = async () => {
+      // If we already have a channel ID, no need to fetch
+      if (channelId) return;
+      
+      if (user?.isChannel) {
+        setLoadingChannel(true);
+        try {
+          const res = await fetch(`/api/channels/user/${user._id}`);
+          const data = await res.json();
+
+          console.log(data);
+        } catch (err) {
+          console.error("Error fetching channel:", err);
+        } finally {
+          setLoadingChannel(false);
+        }
+      }
+    };
+
+    fetchChannelId();
+  }, [user]);
+
   const handleLogout = () => {
     localStorage.removeItem("jwtYT");
     localStorage.removeItem("userYT");
+    localStorage.removeItem("channelIdYT");
     window.location.reload("/");
   };
 
@@ -138,19 +165,25 @@ function Header({ onMenuClick }) {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50">
                     {hasChannel ? (
-                      <Link
-                        to="/my-channel"
-                        className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Your Channel
-                      </Link>
+                      loadingChannel ? (
+                        <span className="block px-4 py-2 text-gray-500 dark:text-gray-400">
+                          Loading...
+                        </span>
+                      ) : (
+                        <Link
+                          to={`/my-channel/${user._id}`}
+                          className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          My Channel
+                        </Link>
+                      )
                     ) : (
                       <button
                         className="w-full text-left px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => {
                           setDropdownOpen(false);
-                          setIsChannelModalOpen(true); //  open modal
+                          setIsChannelModalOpen(true);
                         }}
                       >
                         Create Channel
@@ -178,15 +211,15 @@ function Header({ onMenuClick }) {
         </div>
       </header>
 
-      {/*  Modal for Create Channel */}
+      {/* Modal for Create Channel */}
       {isChannelModalOpen && (
         <div
           className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setIsChannelModalOpen(false)} // close when clicking outside
+          onClick={() => setIsChannelModalOpen(false)}
         >
           <div
             className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-lg shadow-lg relative"
-            onClick={(e) => e.stopPropagation()} // prevent close when clicking inside
+            onClick={(e) => e.stopPropagation()}
           >
             <CreateChannel onClose={() => setIsChannelModalOpen(false)} />
           </div>

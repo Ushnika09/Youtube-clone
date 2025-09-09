@@ -8,7 +8,9 @@ import Search from "./layout/Search";
 import Playvideo from "./layout/Playvideo";
 import Login from "./layout/Login";
 import Register from "./layout/Register";
-
+import CreateChannel from "./layout/CreateChannel";
+import MyChannel from "./layout/MyChannel";
+import RootLayout from "./layout/RootLayout";
 
 const router = createBrowserRouter([
   {
@@ -16,28 +18,37 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path:"/",
-        element:<Home/>
+        path: "/",
+        element: <RootLayout />,
+        children: [
+          {
+            path: "/",
+            element: <Home />,
+          },
+          {
+            path: "/search/:query",
+            element: <Search />,
+          },
+          {
+            path: "/video/:id",
+            element: <Playvideo />,
+          },
+          {
+            path: "/my-channel/:id",
+            element: <MyChannel />,
+          },
+        ],
       },
-      {
-        path:"/search/:query",
-        element:<Search/>
-      },
-      {
-        path:"/video/:id",
-        element:<Playvideo/>
-      },
-      
     ],
   },
   {
-        path:"/login",
-        element:<Login/>
-      },
-      {
-        path:"/register",
-        element:<Register/>
-      },
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -4,10 +4,7 @@ import UserRoutes from "./Routes/UserRoutes.js"
 import cors from "cors"
 import CommentRoutes from "./Routes/CommentRoutes.js"
 import videoRoutes from "./Routes/VideoRoutes.js"
-// import dotenv from "dotenv";
-// dotenv.config();
-// console.log("🔑 RAPIDAPI_KEY from env:", process.env.RAPIDAPI_KEY);
-
+import channelRoutes from "./Routes/ChannelRoutes.js"
 
 const app=express()
 
@@ -23,6 +20,7 @@ DbConnection()
 app.use("/api/user",UserRoutes)
 app.use("/api/comments",CommentRoutes)
 app.use("/api/videos", videoRoutes);
+app.use("/api/channel",channelRoutes)
 
 
 let PORT=5000

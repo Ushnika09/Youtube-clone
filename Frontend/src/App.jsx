@@ -4,6 +4,7 @@ import RootLayout from "./layout/RootLayout";
 import ModeContext from "./context/ModeContext";
 import { useData } from "./context/DataContext";
 import { UserProvider } from "./context/UserContext";
+import { Outlet } from "react-router-dom";
 
 function App() {
   const [mode, setMode] = useState(false);
@@ -15,7 +16,8 @@ function App() {
     <UserProvider>
       <ModeContext.Provider value={{ mode, setMode }}>
         <div className={`flex flex-col h-screen `}>
-          <RootLayout />
+          {/* <RootLayout /> */}
+          <Outlet/>
         </div>
       </ModeContext.Provider>
     </UserProvider>
