@@ -50,31 +50,31 @@ export default function Comments({ id }) {
 
   // Merge both comments
   useEffect(() => {
-  const merged = [
-    ...userComments.map((c) => ({
-      _id: c._id,
-      type: "user",
-      name: c.userId?.name || "User",
-      avatar: c.userId?.name ? c.userId.name[0].toUpperCase() : "U",
-      text: c.text,
-      createdAt: c.createdAt,
-      likes: c.likes || 0,
-      userAction: null, // NEW: track per-user like/dislike
-    })),
-    ...rapidComments.map((c) => ({
-      _id: c.commentId,
-      type: "rapid",
-      name: c.authorText,
-      avatar: c.authorText ? c.authorText[0].toUpperCase() : "R",
-      text: c.textDisplay,
-      createdAt: c.publishedTimeText,
-      likes: c.likesCount || 0,
-      thumbnail: c?.authorThumbnail?.[0]?.url,
-      userAction: null, // NEW
-    })),
-  ];
-  setAllComments(merged);
-}, [userComments, rapidComments]);
+    const merged = [
+      ...userComments.map((c) => ({
+        _id: c._id,
+        type: "user",
+        name: c.userId?.name || "User",
+        avatar: c.userId?.name ? c.userId.name[0].toUpperCase() : "U",
+        text: c.text,
+        createdAt: c.createdAt,
+        likes: c.likes || 0,
+        userAction: null, // NEW: track per-user like/dislike
+      })),
+      ...rapidComments.map((c) => ({
+        _id: c.commentId,
+        type: "rapid",
+        name: c.authorText,
+        avatar: c.authorText ? c.authorText[0].toUpperCase() : "R",
+        text: c.textDisplay,
+        createdAt: c.publishedTimeText,
+        likes: c.likesCount || 0,
+        thumbnail: c?.authorThumbnail?.[0]?.url,
+        userAction: null, // NEW
+      })),
+    ];
+    setAllComments(merged);
+  }, [userComments, rapidComments]);
 
   // Add comment
   const handleAdd = async () => {
@@ -134,20 +134,80 @@ export default function Comments({ id }) {
   };
 
   // Like & Dislike (frontend only for now)
-  const handleLike = (id) => {
+  // ✅ Like handler
+  const handleLike = async (commentId, type) => {
     setAllComments((prev) =>
-      prev.map((c) =>
-        c._id === id ? { ...c, likes: (Number(c.likes) || 0) + 1 } : c
-      )
+      prev.map((c) => {
+        if (c._id !== commentId) return c;
+
+        let newLikes = c.likes;
+        let newAction = c.userAction;
+
+        if (c.userAction === "like") {
+          // 🔄 Undo like
+          newLikes = Math.max(c.likes - 1, 0);
+          newAction = null;
+        } else if (c.userAction === "dislike") {
+          // 🔄 Switch dislike → like
+          newLikes = c.likes + 1;
+          newAction = "like";
+        } else {
+          // ✅ First like
+          newLikes = c.likes + 1;
+          newAction = "like";
+        }
+
+        return { ...c, likes: newLikes, userAction: newAction };
+      })
     );
+
+    if (type === "user") {
+      try {
+        await fetch(`http://localhost:5000/api/comments/${commentId}/like`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (err) {
+        console.log("Backend like error:", err);
+      }
+    }
   };
 
-  const handleDislike = (id) => {
+  // ✅ Dislike handler
+  const handleDislike = async (commentId, type) => {
     setAllComments((prev) =>
-      prev.map((c) =>
-        c._id === id ? { ...c, likes: Math.max((c.likes || 0) - 1, 0) } : c
-      )
+      prev.map((c) => {
+        if (c._id !== commentId) return c;
+
+        let newLikes = c.likes;
+        let newAction = c.userAction;
+
+        if (c.userAction === "dislike") {
+          // 🔄 Undo dislike
+          newAction = null;
+        } else if (c.userAction === "like") {
+          // 🔄 Switch like → dislike
+          newLikes = Math.max(c.likes - 1, 0);
+          newAction = "dislike";
+        } else {
+          // ✅ First dislike
+          newAction = "dislike";
+        }
+
+        return { ...c, likes: newLikes, userAction: newAction };
+      })
     );
+
+    if (type === "user") {
+      try {
+        await fetch(`http://localhost:5000/api/comments/${commentId}/dislike`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (err) {
+        console.log("Backend dislike error:", err);
+      }
+    }
   };
 
   return (
@@ -191,7 +251,7 @@ export default function Comments({ id }) {
       {/* Comments List */}
       <div className="space-y-4 mt-4">
         {allComments.map((c) => (
-          <div key={c._id} className="flex gap-3 px-3 relative">
+          <div key={c._id} className="flex gap-3 px-3 relative my-3">
             {/* Avatar */}
             {c.thumbnail ? (
               <img src={c.thumbnail} className="w-10 h-10 rounded-full" />
@@ -250,7 +310,7 @@ export default function Comments({ id }) {
                   />
                   {menuOpenId === c._id && (
                     <div
-                      className={`absolute right-0 mt-1 w-28 rounded-lg shadow-md z-10 ${
+                      className={`absolute right-5 top-0 mb-1  w-28 rounded-lg shadow-md z-10 ${
                         mode ? "bg-gray-800 text-white" : "bg-white text-black"
                       }`}
                     >
@@ -281,16 +341,24 @@ export default function Comments({ id }) {
               {/* Like/Dislike for all comments */}
               <div className="flex gap-2 text-sm mt-1 items-center">
                 <PiThumbsUpFill
-                  onClick={() => handleLike(c._id)}
+                  onClick={() => handleLike(c._id, c.type)}
                   className={`text-xl cursor-pointer ${
-                    mode ? "text-white" : "text-black"
+                    c.userAction === "like"
+                      ? "text-blue-500"
+                      : mode
+                      ? "text-white"
+                      : "text-black"
                   }`}
                 />
                 <span>{c.likes || 0}</span>
                 <PiThumbsDown
-                  onClick={() => handleDislike(c._id)}
+                  onClick={() => handleDislike(c._id, c.type)}
                   className={`text-xl cursor-pointer ${
-                    mode ? "text-white" : "text-black"
+                    c.userAction === "dislike"
+                      ? "text-blue-500"
+                      : mode
+                      ? "text-white"
+                      : "text-black"
                   }`}
                 />
               </div>
