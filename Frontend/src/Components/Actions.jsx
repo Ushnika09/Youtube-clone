@@ -17,45 +17,70 @@ function Actions({ video, mode }) {
   const [dislikes, setDislikes] = useState(video?.dislikeCount || 0);
 
   useEffect(() => {
-    setLikes(video?.likeCount || 0);
-    setDislikes(video?.dislikeCount || 0);
-  }, [video]);
+  if (video) {
+    setLikes(video.likeCount || 0);
+    setDislikes(video.dislikeCount || 0);
+  }
+}, [video?.videoId]); // update only when switching to a new video
+
 
   const handleLike = async () => {
   try {
-    const action = liked ? "unlike" : "like";
-    setLiked(!liked);
-    if (disliked) setDisliked(false);
+    if (liked) {
+      // Already liked → unlike
+      setLiked(false);
+      setLikes((prev) => Math.max(prev - 1, 0));
+      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
+        action: "unlike",
+      });
+    } else {
+      // New like
+      setLiked(true);
+      setLikes((prev) => prev + 1);
 
-    const res = await axios.patch(
-      `http://localhost:5000/videos/likes/${video.videoId}`,
-      { action }
-    );
+      if (disliked) {
+        setDisliked(false);
+        setDislikes((prev) => Math.max(prev - 1, 0));
+      }
 
-    setLikes(res.data.likeCount);
-    setDislikes(res.data.dislikeCount);
+      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
+        action: "like",
+      });
+    }
   } catch (err) {
     console.error(err);
   }
 };
+
 
 const handleDislike = async () => {
   try {
-    const action = disliked ? "undislike" : "dislike";
-    setDisliked(!disliked);
-    if (liked) setLiked(false);
+    if (disliked) {
+      // Already disliked → undislike
+      setDisliked(false);
+      setDislikes((prev) => Math.max(prev - 1, 0));
+      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
+        action: "undislike",
+      });
+    } else {
+      // New dislike
+      setDisliked(true);
+      setDislikes((prev) => prev + 1);
 
-    const res = await axios.patch(
-      `http://localhost:5000/videos/likes/${video.videoId}`,
-      { action }
-    );
+      if (liked) {
+        setLiked(false);
+        setLikes((prev) => Math.max(prev - 1, 0));
+      }
 
-    setLikes(res.data.likeCount);
-    setDislikes(res.data.dislikeCount);
+      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
+        action: "dislike",
+      });
+    }
   } catch (err) {
     console.error(err);
   }
 };
+
 
 
   // Close menu on outside click
@@ -73,7 +98,7 @@ const handleDislike = async () => {
     <div className="flex flex-row gap-2.5 w-full justify-between">
       {/* Left: channel name + subscribe */}
       <div className="flex gap-4 items-center">
-        <div className="flex flex-col overflow-hidden w-[10rem]">
+        <div className="flex flex-col overflow-hidden w-fit">
           <h1 className="flex flex-row justify-start gap-2 items-center font-bold text-nowrap text-xl">
             <span className="truncate">{video?.channelName}</span>
             {video?.isVerified && <RiVerifiedBadgeFill />}
