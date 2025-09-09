@@ -122,37 +122,86 @@ export const getVideoById = async (req, res) => {
   }
 };
 
-// PATCH /likes/:videoId
+
+// PUT /api/videos/likes/:videoId
 export const updateLikes = async (req, res) => {
   try {
+    console.log("Update likes called:", {
+      videoId: req.params.videoId,
+      action: req.body.action,
+      userId: req.user?._id
+    });
+
     const { videoId } = req.params;
-    const { action } = req.body; // 'like' | 'unlike' | 'dislike' | 'undislike'
+    const { action } = req.body;
+
+    if (!req.user) {
+      console.log("No user found in request");
+      return res.status(401).json({ message: "Not authenticated" });
+    }
 
     const video = await Video.findOne({ videoId });
-    if (!video) return res.status(404).json({ error: "Video not found" });
+    if (!video) {
+      console.log("Video not found:", videoId);
+      return res.status(404).json({ error: "Video not found" });
+    }
 
+    // Like/Dislike switch logic
     switch (action) {
       case "like":
-        video.likeCount = (video.likeCount || 0) + 1;
-        if (video.dislikeCount > 0) video.dislikeCount -= 1;
+        if (!video.likedByUser) {
+          video.likeCount = (video.likeCount || 0) + 1;
+          if (video.dislikedByUser && video.dislikeCount > 0) {
+            video.dislikeCount = Math.max(0, video.dislikeCount - 1);
+          }
+          video.likedByUser = true;
+          video.dislikedByUser = false;
+        }
         break;
+
       case "unlike":
-        video.likeCount = Math.max((video.likeCount || 0) - 1, 0);
+        if (video.likedByUser && video.likeCount > 0) {
+          video.likeCount = Math.max(0, video.likeCount - 1);
+          video.likedByUser = false;
+        }
         break;
+
       case "dislike":
-        video.dislikeCount = (video.dislikeCount || 0) + 1;
-        if (video.likeCount > 0) video.likeCount -= 1;
+        if (!video.dislikedByUser) {
+          video.dislikeCount = (video.dislikeCount || 0) + 1;
+          if (video.likedByUser && video.likeCount > 0) {
+            video.likeCount = Math.max(0, video.likeCount - 1);
+          }
+          video.dislikedByUser = true;
+          video.likedByUser = false;
+        }
         break;
+
       case "undislike":
-        video.dislikeCount = Math.max((video.dislikeCount || 0) - 1, 0);
+        if (video.dislikedByUser && video.dislikeCount > 0) {
+          video.dislikeCount = Math.max(0, video.dislikeCount - 1);
+          video.dislikedByUser = false;
+        }
         break;
+
+      default:
+        return res.status(400).json({ message: "Invalid action" });
     }
 
     await video.save();
-    res.json({ likeCount: video.likeCount, dislikeCount: video.dislikeCount });
+
+    res.json({
+      likeCount: video.likeCount,
+      dislikeCount: video.dislikeCount,
+      likedByUser: video.likedByUser,
+      dislikedByUser: video.dislikedByUser
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to update likes/dislikes" });
+    console.error("Update likes error details:", error);
+    res.status(500).json({ 
+      error: "Failed to update likes/dislikes",
+      details: error.message 
+    });
   }
 };
-

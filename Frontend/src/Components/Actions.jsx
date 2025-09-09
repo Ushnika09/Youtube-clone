@@ -16,71 +16,75 @@ function Actions({ video, mode }) {
   const [likes, setLikes] = useState(video?.likeCount || 0);
   const [dislikes, setDislikes] = useState(video?.dislikeCount || 0);
 
+  // Load counts when video changes
   useEffect(() => {
   if (video) {
     setLikes(video.likeCount || 0);
     setDislikes(video.dislikeCount || 0);
+    setLiked(video.likedByUser || false); 
+    setDisliked(video.dislikedByUser || false);
   }
-}, [video?.videoId]); // update only when switching to a new video
+}, [video?.videoId]);
 
+  const token = localStorage.getItem("jwtYT"); // make sure user JWT is stored here
 
-  const handleLike = async () => {
+const handleLike = async () => {
+  if (!token) {
+    alert("You must be logged in to like!");
+    return;
+  }
+
   try {
-    if (liked) {
-      // Already liked → unlike
-      setLiked(false);
-      setLikes((prev) => Math.max(prev - 1, 0));
-      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
-        action: "unlike",
-      });
-    } else {
-      // New like
-      setLiked(true);
-      setLikes((prev) => prev + 1);
+    const action = liked ? "unlike" : "like";
+    console.log("Sending like request:", { videoId: video.videoId, action, token: token.substring(0, 20) + "..." });
 
-      if (disliked) {
-        setDisliked(false);
-        setDislikes((prev) => Math.max(prev - 1, 0));
+    const res = await axios.put(
+      `http://localhost:5000/api/videos/likes/${video.videoId}`,
+      { action },
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
       }
+    );
 
-      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
-        action: "like",
-      });
-    }
+    console.log("Like response:", res.data);
+    
+    // Update ALL states from backend response
+    setLikes(res.data.likeCount);
+    setDislikes(res.data.dislikeCount);
+    setLiked(res.data.likedByUser);
+    setDisliked(res.data.dislikedByUser);
+
   } catch (err) {
-    console.error(err);
+    console.error("Like error details:", err);
+    console.error("Error response:", err.response?.data);
+    alert(`Failed to update like: ${err.response?.data?.message || err.message}`);
   }
 };
-
 
 const handleDislike = async () => {
+  if (!token) return alert("You must be logged in to dislike!");
+
   try {
-    if (disliked) {
-      // Already disliked → undislike
-      setDisliked(false);
-      setDislikes((prev) => Math.max(prev - 1, 0));
-      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
-        action: "undislike",
-      });
-    } else {
-      // New dislike
-      setDisliked(true);
-      setDislikes((prev) => prev + 1);
+    const action = disliked ? "undislike" : "dislike";
+    const res = await axios.put(
+      `http://localhost:5000/api/videos/likes/${video.videoId}`,
+      { action },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      if (liked) {
-        setLiked(false);
-        setLikes((prev) => Math.max(prev - 1, 0));
-      }
-
-      await axios.patch(`http://localhost:5000/videos/likes/${video.videoId}`, {
-        action: "dislike",
-      });
-    }
+    // Update ALL states from backend response
+    setLikes(res.data.likeCount);
+    setDislikes(res.data.dislikeCount);
+    setLiked(res.data.likedByUser);
+    setDisliked(res.data.dislikedByUser);
   } catch (err) {
-    console.error(err);
+    console.error("Dislike error:", err);
+    alert("Failed to update dislike");
   }
 };
-
 
 
   // Close menu on outside click
@@ -103,9 +107,6 @@ const handleDislike = async () => {
             <span className="truncate">{video?.channelName}</span>
             {video?.isVerified && <RiVerifiedBadgeFill />}
           </h1>
-          {video?.subscriberCount && (
-            <span className="text-sm">{millify(video?.subscriberCount)} Subscribers</span>
-          )}
         </div>
         <button
           className={`px-4 shadow py-1.5 flex items-center rounded-3xl text-[1rem] font-bold ${
@@ -123,13 +124,8 @@ const handleDislike = async () => {
             mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
           }`}
         >
-          <button
-            onClick={handleLike}
-            className="flex items-center gap-1 cursor-pointer"
-          >
-            <BiSolidLike
-              className={`text-xl ${liked ? "text-blue-600" : ""}`}
-            />
+          <button onClick={handleLike} className="flex items-center gap-1 cursor-pointer">
+            <BiSolidLike className={`text-xl ${liked ? "text-blue-600" : ""}`} />
             <span className="text-[1rem] font-medium">
               {likes ? millify(likes, { precision: 0 }) : ""}
             </span>
@@ -137,13 +133,8 @@ const handleDislike = async () => {
 
           <div className={`h-6 mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`} />
 
-          <button
-            onClick={handleDislike}
-            className="flex items-center gap-1 cursor-pointer"
-          >
-            <BiSolidDislike
-              className={`text-xl ${disliked ? "text-blue-600" : ""}`}
-            />
+          <button onClick={handleDislike} className="flex items-center gap-1 cursor-pointer">
+            <BiSolidDislike className={`text-xl ${disliked ? "text-blue-600" : ""}`} />
           </button>
         </div>
 

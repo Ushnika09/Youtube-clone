@@ -8,8 +8,8 @@ import UserContext from "../context/UserContext";
 function Header({ onMenuClick }) {
   const { mode, setMode } = useContext(ModeContext);
   const [status, setStatus] = useState(navigator.onLine);
-  const [query, setQuery] = useState(""); // ✅ controlled input
-  const navigate = useNavigate(); // ✅ for navigation
+  const [query, setQuery] = useState(""); // controlled input
+  const navigate = useNavigate(); // for navigation
   const { user } = useContext(UserContext);
   const hasChannel = user?.channel?.id; // based on channel created or not
   const [dropdownOpen, setDropdownOpen] = useState(false);
