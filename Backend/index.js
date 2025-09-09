@@ -12,7 +12,9 @@ import videoRoutes from "./Routes/VideoRoutes.js"
 const app=express()
 
 app.use(express.json())
-app.use(cors())
+
+app.use(cors());
+
 
 DbConnection()
 
@@ -21,7 +23,11 @@ DbConnection()
 app.use("/api/user",UserRoutes)
 app.use("/api/comments",CommentRoutes)
 app.use("/api/videos", videoRoutes);
+
+
 let PORT=5000
+
+
 app.listen(PORT,(req,res)=>{
     console.log(`Server running in port ${PORT}`);
 })
