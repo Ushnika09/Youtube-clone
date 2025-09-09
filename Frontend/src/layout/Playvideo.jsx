@@ -53,7 +53,7 @@ function Playvideo() {
   return (
     <div className={`pl-10 max-w-screen pt-[3.8rem] flex gap-5 ${mode ? "bg-black" : "bg-white"}`}>
       <div className="flex flex-col w-[700px]">
-        <VideoSec video={video} />
+        <VideoSec video={video} id={id}/>
         <Comments id={id} />
       </div>
       <Sugesstion id={id} />
