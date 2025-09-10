@@ -13,7 +13,7 @@ export default function DataProvider({ children }) {
   }, [val]);
 
   const fetchAllData = async (category) => {
-    const query = category === "All" ? "New" : category;
+    const query = category === "All" ? "JavaScript" : category;
 
     try {
       setLoading(true);

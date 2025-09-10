@@ -12,7 +12,7 @@ function CreateChannel({ onClose }) {
   const [name, setName] = useState(user?.name || "");
   const [handle, setHandle] = useState(user ? `@${user.name.replace(/\s+/g, "")}` : "");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [bannerUrl, setBannerUrl] = useState(""); // ✅ added banner
+  const [bannerUrl, setBannerUrl] = useState(""); //  added banner
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

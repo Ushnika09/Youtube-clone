@@ -36,6 +36,7 @@ function Login() {
       const { token, user } = res.data;
       localStorage.setItem("jwtYT", token);
       localStorage.setItem("userYT", JSON.stringify(user));
+      console.log(user);
 
       setIsSubmitted(true);
       setIsLoading(false);

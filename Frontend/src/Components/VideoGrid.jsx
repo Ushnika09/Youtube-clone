@@ -10,7 +10,7 @@ import moment from "moment";
 
 
 
-function VideoGrid({ channel, onDeleteVideo, onVideoUpdated }) {
+function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,refresh ,setRefresh}) {
   const [activeMenu, setActiveMenu] = useState(null);
   const [editingVideo, setEditingVideo] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -44,7 +44,20 @@ function VideoGrid({ channel, onDeleteVideo, onVideoUpdated }) {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [activeMenu]);
+  }, [activeMenu,]);
+
+
+
+  // Add this useEffect to handle refresh
+  useEffect(() => {
+    if (refresh) {
+      // This will force a re-render when refreshVideos changes
+      setActiveMenu(null);
+      setEditingVideo(null);
+      setIsEditOpen(false);
+    }
+  }, [refresh]);
+
 
   return (
     <>
