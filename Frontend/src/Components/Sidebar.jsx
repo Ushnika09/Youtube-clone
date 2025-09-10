@@ -16,13 +16,13 @@ function Sidebar({ open }) {
 
   const menuItems = [
     { name: "Home", icon: <FaHome />, path: "/" },
-    { name: "Shorts", icon: <SiYoutubeshorts />, path: "/shorts" },
-    { name: "Subscriptions", icon: <MdOutlineSubscriptions />, path: "/subscriptions" },
-    { name: "History", icon: <FaHistory />, path: "/history" },
-    { name: "Downloads", icon: <MdOutlineFileDownload />, path: "/downloads" },
-    { name: "Playlists", icon: <MdPlaylistPlay />, path: "/playlists" },
-    { name: "Watch Later", icon: <MdOutlineWatchLater />, path: "/watchlater" },
-    { name: "Liked Videos", icon: <MdOutlineThumbUp />, path: "/liked" },
+    { name: "Shorts", icon: <SiYoutubeshorts />, path: "/tobe" },
+    { name: "Subscriptions", icon: <MdOutlineSubscriptions />, path: "/tobe3" },
+    { name: "History", icon: <FaHistory />, path: "/tobe2" },
+    { name: "Downloads", icon: <MdOutlineFileDownload />, path: "/tobe1" },
+    { name: "Playlists", icon: <MdPlaylistPlay />, path: "/tobe" },
+    { name: "Watch Later", icon: <MdOutlineWatchLater />, path: "/tobe" },
+    { name: "Liked Videos", icon: <MdOutlineThumbUp />, path: "/tobe" },
   ];
 
   const visibleItems = open ? menuItems : menuItems.slice(0, 5);
