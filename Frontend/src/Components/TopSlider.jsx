@@ -15,18 +15,7 @@ function TopSlider() {
     "Learning",
     "Comedy",
     "Videoblogging",
-    "Entertainment",
-    "Education",
-    "Classics",
-    "Documentary",
     "Drama",
-    "Family",
-    "Foreign",
-    "Horror",
-    "Thriller",
-    "Shorts",
-    "Shows",
-    "Trailers",
   ];
 
   const { mode } = useContext(ModeContext);
