@@ -49,7 +49,6 @@ The backend integrates with **RapidAPI** to fetch and **seed trending videos** i
 ---
 
 ## 🚀 **Live Demo**   
-- **Backend API:** Hosted on Render  
 - **Source Code:** [GitHub Repository](https://github.com/Ushnika09/YouTube-Clone.git)  
 
 ---
@@ -88,7 +87,7 @@ npm install
 npm run dev
 ```
 
-##📁 Project Structure
+### 📁 Project Structure
 ```bash
 YouTube-Clone/
 ├── backend/        # Express.js + MongoDB + JWT + RapidAPI
