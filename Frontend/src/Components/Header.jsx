@@ -8,18 +8,17 @@ import CreateChannel from "../layout/CreateChannel";
 
 function Header({ onMenuClick }) {
   const { mode, setMode } = useContext(ModeContext);
+  const { user, setUser } = useContext(UserContext); 
   const [status, setStatus] = useState(navigator.onLine);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
   const hasChannel = user?.isChannel;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   // const channelId = user._id;
   const [loadingChannel, setLoadingChannel] = useState(false);
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
 
-  
-// console.log(channelId);
+  // console.log(channelId);
   const handleSearch = () => {
     if (query.trim()) navigate(`/search/${query}`);
   };
@@ -41,35 +40,37 @@ function Header({ onMenuClick }) {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchChannelId = async () => {
-      // If we already have a channel ID, no need to fetch
-      if (channelId) return;
-      
-      if (user?.isChannel) {
-        setLoadingChannel(true);
-        try {
-          const res = await fetch(`/api/channels/user/${user._id}`);
-          const data = await res.json();
+  // useEffect(() => {
+  //   const fetchChannelId = async () => {
+  //     // If we already have a channel ID, no need to fetch
+  //     if (channelId) return;
 
-          console.log(data);
-        } catch (err) {
-          console.error("Error fetching channel:", err);
-        } finally {
-          setLoadingChannel(false);
-        }
-      }
-    };
+  //     if (user?.isChannel) {
+  //       setLoadingChannel(true);
+  //       try {
+  //         const res = await fetch(`/api/channels/user/${user._id}`);
+  //         const data = await res.json();
 
-    fetchChannelId();
-  }, [user]);
+  //         console.log(data);
+  //       } catch (err) {
+  //         console.error("Error fetching channel:", err);
+  //       } finally {
+  //         setLoadingChannel(false);
+  //       }
+  //     }
+  //   };
+
+  //   fetchChannelId();
+  // }, [user]);
 
   const handleLogout = () => {
-    localStorage.removeItem("jwtYT");
-    localStorage.removeItem("userYT");
-    localStorage.removeItem("channelIdYT");
-    window.location.reload("/");
-  };
+  localStorage.removeItem("jwtYT");
+  localStorage.removeItem("userYT");
+  localStorage.removeItem("channelIdYT");
+  setUser(null); // clears user state
+  navigate("/"); // redirect to home
+};
+
 
   return (
     <div className="fixed top-0 z-10 w-full">
