@@ -25,7 +25,7 @@ function Sugesstion({query}) {
   }, []);
 
   return (
-    <div className={`flex flex-col gap-3.5 flex-1 ${mode ? "text-white" : "text-black"}`}>
+    <div className={`w-full md:w-auto hidden md:flex flex-col gap-3.5 flex-1 ${mode ? "text-white" : "text-black"}`}>
       {related.map((video) => (
         <Link
           key={video.videoId}
@@ -33,7 +33,7 @@ function Sugesstion({query}) {
           className="flex justify-center gap-2.5"
         >
           {/* thumbnail */}
-          <div className="relative rounded-lg overflow-hidden h-24 w-42">
+          <div className="relative rounded-lg overflow-hidden h-20 md:h-24 w-32 md:w-42">
             <img
               onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
               className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0"
@@ -44,25 +44,25 @@ function Sugesstion({query}) {
           </div>
 
           {/* video details */}
-          <div className={`flex flex-col mt-2.5 justify-start gap-3 flex-1 pr-3.5`}>
-            <div className={`flex flex-col overflow-hidden text-sm pr-3`}>
+          <div className={`flex flex-col mt-1 md:mt-2.5 justify-start gap-1 md:gap-3 flex-1 pr-2 md:pr-3.5`}>
+            <div className={`flex flex-col overflow-hidden text-xs md:text-sm pr-2 md:pr-3`}>
               <h1 className="line-clamp-2 font-extrabold">{video.title}</h1>
               <h1
-                className={`flex flex-row font-medium justify-start gap-2 items-center ${
+                className={`flex flex-row font-medium justify-start gap-1 md:gap-2 items-center ${
                   mode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
                 {video.channelName}
-                <RiVerifiedBadgeFill />
+                <RiVerifiedBadgeFill className="text-sm md:text-base" />
               </h1>
 
               <div
-                className={`flex gap-1.5 text-nowrap items-center font-medium ${
+                className={`flex gap-1 text-xs md:text-sm text-nowrap items-center font-medium ${
                   mode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
                 <span>{millify(video.viewCount || 0)} views</span>
-                <GoDotFill className="text-[0.5rem]" />
+                <GoDotFill className="text-[0.4rem] md:text-[0.5rem]" />
                 <span>{video.publishedTimeText}</span>
               </div>
             </div>

@@ -7,8 +7,8 @@ function VideoSec({ id, video }) {
   const isVideoUrl = url && url.startsWith("http");
 
   return (
-    <div className="flex flex-col w-[700px]">
-      <div className="w-[700px] h-[380px] relative overflow-hidden rounded-lg">
+    <div className="flex flex-col w-full md:w-[700px]">
+      <div className="w-full md:w-[700px] h-[200px] sm:h-[300px] md:h-[380px] relative overflow-hidden rounded-lg">
         {isVideoUrl ? (
           <video
             src={url}

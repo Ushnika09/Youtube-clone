@@ -98,18 +98,18 @@ const handleDislike = async () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  return (
+    return (
     <div className="flex flex-row gap-2.5 w-full justify-between">
       {/* Left: channel name + subscribe */}
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-2 md:gap-4 items-center">
         <div className="flex flex-col overflow-hidden w-fit">
-          <h1 className="flex flex-row justify-start gap-2 items-center font-bold text-nowrap text-xl">
-            <span className="truncate">{video?.channelName}</span>
-            {video?.isVerified && <RiVerifiedBadgeFill />}
+          <h1 className="flex flex-row justify-start gap-1 md:gap-2 items-center font-bold text-nowrap text-lg md:text-xl">
+            <span className="truncate max-w-[120px] md:max-w-none">{video?.channelName}</span>
+            {video?.isVerified && <RiVerifiedBadgeFill className="text-sm md:text-base" />}
           </h1>
         </div>
         <button
-          className={`px-4 shadow py-1.5 flex items-center rounded-3xl text-[1rem] font-bold ${
+          className={`px-3 md:px-4 shadow py-1 md:py-1.5 flex items-center rounded-3xl text-sm md:text-[1rem] font-bold ${
             mode ? "bg-white text-black" : "bg-black text-white"
           }`}
         >
@@ -118,45 +118,54 @@ const handleDislike = async () => {
       </div>
 
       {/* Right: Like, Dislike, Share, Menu */}
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-2 md:gap-4 items-center justify-end">
         <div
-          className={`flex items-center px-4 py-1.5 rounded-3xl ${
+          className={`flex items-center px-2 md:px-4 py-1 md:py-1.5 rounded-3xl ${
             mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
           }`}
         >
           <button onClick={handleLike} className="flex items-center gap-1 cursor-pointer">
-            <BiSolidLike className={`text-xl ${liked ? "text-blue-600" : ""}`} />
-            <span className="text-[1rem] font-medium">
+            <BiSolidLike className={`text-lg md:text-xl ${liked ? "text-blue-600" : ""}`} />
+            <span className="text-sm md:text-[1rem] font-medium">
               {likes ? millify(likes, { precision: 0 }) : ""}
             </span>
           </button>
 
-          <div className={`h-6 mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`} />
+          <div className={`h-5 md:h-6 mx-1 md:mx-2 w-[1px] ${mode ? "bg-white" : "bg-black"}`} />
 
           <button onClick={handleDislike} className="flex items-center gap-1 cursor-pointer">
-            <BiSolidDislike className={`text-xl ${disliked ? "text-blue-600" : ""}`} />
+            <BiSolidDislike className={`text-lg md:text-xl ${disliked ? "text-blue-600" : ""}`} />
           </button>
         </div>
 
         {/* Share */}
         <div
-          className={`flex gap-1 items-center px-4 py-1.5 rounded-3xl ${
+          className={`hidden sm:flex gap-1 items-center px-2 md:px-4 py-1 md:py-1.5 rounded-3xl ${
             mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
           }`}
         >
-          <PiShareFat className="text-xl cursor-pointer hover:scale-110 transition-transform" />
-          <span className="text-[1rem] font-medium">Share</span>
+          <PiShareFat className="text-lg md:text-xl cursor-pointer hover:scale-110 transition-transform" />
+          <span className="hidden md:block text-sm md:text-[1rem] font-medium">Share</span>
+        </div>
+
+        {/* Mobile share icon (only shows on small screens) */}
+        <div
+          className={`sm:hidden flex items-center p-2 rounded-3xl ${
+            mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
+          }`}
+        >
+          <PiShareFat className="text-lg cursor-pointer hover:scale-110 transition-transform" />
         </div>
 
         {/* 3 dots menu */}
         <div ref={menuRef}>
           <button
             onClick={() => setOpen(!isOpen)}
-            className={`relative px-2 py-2 rounded-full ${
+            className={`relative p-1.5 md:p-2 rounded-full ${
               mode ? "bg-neutral-600/70" : "bg-neutral-200/50"
             }`}
           >
-            <BsThreeDots />
+            <BsThreeDots className="text-sm md:text-base" />
             {isOpen && (
               <div
                 className={`absolute left-1.5 font-semibold rounded-xl bottom-8.5 flex gap-1 px-3.5 py-2 items-center z-20 ${

@@ -22,16 +22,16 @@ function Details({ id, video }) {
       }`}
     >
       {/* Video title */}
-      <h1 className="text-xl font-bold line-clamp-2 mt-2 mb-0">
+      <h1 className="text-lg md:text-xl font-bold line-clamp-2 mt-2 mb-0">
         {matchedVideo?.title}
       </h1>
 
-      <div className="flex gap-3 items-center my-1.5">
+      <div className="flex gap-2 md:gap-3 items-center my-1 md:my-1.5">
         {/* Channel logo */}
-        <div className="h-10 w-10 rounded-full flex">
+        <div className="h-8 w-8 md:h-10 md:w-10 rounded-full flex">
           <img
             src={logo}
-            className="rounded-full h-10 w-10 shrink-0 border"
+            className="rounded-full h-8 w-8 md:h-10 md:w-10 shrink-0 border"
             alt="Channel Logo"
           />
         </div>

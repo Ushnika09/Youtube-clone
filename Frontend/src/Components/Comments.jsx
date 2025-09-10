@@ -212,19 +212,19 @@ export default function Comments({ id }) {
 
   return (
     <div className={`${mode ? "text-white" : "text-black"} mt-2.5`}>
-      <h1 className="font-bold text-2xl pl-3 py-3">
+      <h1 className="font-bold text-xl md:text-2xl pl-2 md:pl-3 py-2 md:py-3">
         {allComments.length} Comments
       </h1>
 
       {/* Add Comment Box */}
-      <div className="flex gap-3 items-center mb-6 px-3">
+      <div className="flex gap-2 md:gap-3 items-center mb-4 md:mb-6 px-2 md:px-3">
         {/* Avatar */}
         {user ? (
-          <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm md:text-base">
             {user?.name?.[0]?.toUpperCase()}
           </div>
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-sm md:text-base">
             U
           </div>
         )}
@@ -235,14 +235,14 @@ export default function Comments({ id }) {
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           disabled={!user}
-          className={`flex-1 px-4 py-2 border rounded-lg ${
+          className={`flex-1 px-3 md:px-4 py-1.5 md:py-2 border rounded-lg text-sm md:text-base ${
             mode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
           }`}
         />
         <button
           onClick={handleAdd}
           disabled={!user}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg text-sm md:text-base"
         >
           Comment
         </button>
@@ -251,21 +251,21 @@ export default function Comments({ id }) {
       {/* Comments List */}
       <div className="space-y-4 mt-4">
         {allComments.map((c) => (
-          <div key={c._id} className="flex gap-3 px-3 relative my-3">
+          <div key={c._id} className="flex gap-2 md:gap-3 px-2 md:px-3 relative my-2 md:my-3">
             {/* Avatar */}
             {c.thumbnail ? (
-              <img src={c.thumbnail} className="w-10 h-10 rounded-full" />
+              <img src={c.thumbnail} className="w-8 h-8 md:w-10 md:h-10 rounded-full" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm md:text-base">
                 {c.avatar}
               </div>
             )}
 
             {/* Body */}
             <div className="flex flex-col flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{c.name}</span>
-                <span className="text-sm text-gray-500">
+              <div className="flex items-center gap-1 md:gap-2">
+                <span className="font-medium text-sm md:text-base">{c.name}</span>
+                <span className="text-xs md:text-sm text-gray-500">
                   {c.type === "user"
                     ? moment(c.createdAt).fromNow()
                     : c.createdAt}
@@ -278,39 +278,39 @@ export default function Comments({ id }) {
                   <input
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="px-2 py-1 border rounded flex-1"
+                    className="px-2 py-1 border rounded flex-1 text-sm md:text-base"
                   />
                   <div className="flex gap-2 mt-1">
                     <button
                       onClick={() => handleUpdate(c._id)}
-                      className="px-2 py-1 bg-green-600 text-white rounded"
+                      className="px-2 py-1 bg-green-600 text-white rounded text-sm md:text-base"
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setEditId(null)}
-                      className="px-2 py-1 bg-gray-400 text-white rounded"
+                      className="px-2 py-1 bg-gray-400 text-white rounded text-sm md:text-base"
                     >
                       Cancel
                     </button>
                   </div>
                 </>
               ) : (
-                <p className="text-sm">{c.text}</p>
+                <p className="text-xs md:text-sm">{c.text}</p>
               )}
 
               {/* Edit/Delete menu for user comments */}
               {c.type === "user" && c.name === user?.name && (
-                <div className="absolute right-5 top-2">
+                <div className="absolute right-3 md:right-5 top-1 md:top-2">
                   <BsThreeDotsVertical
-                    className="cursor-pointer"
+                    className="cursor-pointer text-sm md:text-base"
                     onClick={() =>
                       setMenuOpenId(menuOpenId === c._id ? null : c._id)
                     }
                   />
                   {menuOpenId === c._id && (
                     <div
-                      className={`absolute right-5 top-0 mb-1  w-28 rounded-lg shadow-md z-10 ${
+                      className={`absolute right-3 md:right-5 top-0 mb-1 w-24 md:w-28 rounded-lg shadow-md z-10 ${
                         mode ? "bg-gray-800 text-white" : "bg-white text-black"
                       }`}
                     >
@@ -320,7 +320,7 @@ export default function Comments({ id }) {
                           setEditText(c.text);
                           setMenuOpenId(null);
                         }}
-                        className="block w-full text-left px-3 py-2 hover:bg-gray-200"
+                        className="block w-full text-left px-2 md:px-3 py-1.5 md:py-2 hover:bg-gray-200 text-xs md:text-sm"
                       >
                         Edit
                       </button>
@@ -329,7 +329,7 @@ export default function Comments({ id }) {
                           handleDelete(c._id);
                           setMenuOpenId(null);
                         }}
-                        className="block w-full text-left px-3 py-2 hover:bg-gray-200 text-red-600"
+                        className="block w-full text-left px-2 md:px-3 py-1.5 md:py-2 hover:bg-gray-200 text-red-600 text-xs md:text-sm"
                       >
                         Delete
                       </button>
@@ -339,10 +339,10 @@ export default function Comments({ id }) {
               )}
 
               {/* Like/Dislike for all comments */}
-              <div className="flex gap-2 text-sm mt-1 items-center">
+              <div className="flex gap-1 md:gap-2 text-xs md:text-sm mt-1 items-center">
                 <PiThumbsUpFill
                   onClick={() => handleLike(c._id, c.type)}
-                  className={`text-xl cursor-pointer ${
+                  className={`text-lg md:text-xl cursor-pointer ${
                     c.userAction === "like"
                       ? "text-blue-500"
                       : mode
@@ -353,7 +353,7 @@ export default function Comments({ id }) {
                 <span>{c.likes || 0}</span>
                 <PiThumbsDown
                   onClick={() => handleDislike(c._id, c.type)}
-                  className={`text-xl cursor-pointer ${
+                  className={`text-lg md:text-xl cursor-pointer ${
                     c.userAction === "dislike"
                       ? "text-blue-500"
                       : mode

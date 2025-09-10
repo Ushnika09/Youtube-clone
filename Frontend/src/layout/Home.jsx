@@ -24,7 +24,7 @@ function Home() {
             }
           >
             <div
-              className={`grid pl-10 pt-[2rem] lg:grid-cols-3 md:grid-cols-3 grid-cols-1 gap-x-5 gap-y-7 pr-2 ${
+              className={`grid pl-10 pt-[2rem] lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-x-5 gap-y-7 pr-2 ${
                 mode ? "bg-black" : "bg-white"
               }`}
             >
