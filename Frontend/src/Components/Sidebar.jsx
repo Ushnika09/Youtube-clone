@@ -29,7 +29,7 @@ function Sidebar({ open }) {
 
   return (
     <div
-      className={`h-screen fixed top-[4.6rem] shadow-md left-0  ${
+      className={`h-screen fixed top-[4.6rem] shadow-md left-0 z-10  ${
         mode ? "bg-black text-white" : "bg-white"
       } transition-all  duration-300 ${open ? "w-54 " : "w-20"}`}
     >
