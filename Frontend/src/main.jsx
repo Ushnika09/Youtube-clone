@@ -11,6 +11,7 @@ import Register from "./layout/Register";
 import CreateChannel from "./layout/CreateChannel";
 import MyChannel from "./layout/MyChannel";
 import RootLayout from "./layout/RootLayout";
+import ComingSoon from "./layout/ComingSoon";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,22 @@ const router = createBrowserRouter([
           {
             path: "/my-channel/:id",
             element: <MyChannel />,
+          },
+          {
+            path: "tobe",
+            element: <ComingSoon/>
+          },
+          {
+            path: "tobe3",
+            element: <ComingSoon/>
+          },
+          {
+            path: "tobe2",
+            element: <ComingSoon/>
+          },
+          {
+            path: "tobe1",
+            element: <ComingSoon/>
           },
         ],
       },

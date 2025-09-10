@@ -31,7 +31,7 @@ function CreateChannel({ onClose }) {
       const token = localStorage.getItem("jwtYT");
       const res = await axios.post(
         "http://localhost:5000/api/channel/",
-        { name, handle, description, avatarUrl, bannerUrl }, // ✅ send banner
+        { name, handle, description, avatarUrl, bannerUrl }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

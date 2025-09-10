@@ -134,7 +134,7 @@ export default function Comments({ id }) {
   };
 
   // Like & Dislike (frontend only for now)
-  // ✅ Like handler
+  //  Like handler
   const handleLike = async (commentId, type) => {
     setAllComments((prev) =>
       prev.map((c) => {
@@ -173,7 +173,7 @@ export default function Comments({ id }) {
     }
   };
 
-  // ✅ Dislike handler
+  //  Dislike handler
   const handleDislike = async (commentId, type) => {
     setAllComments((prev) =>
       prev.map((c) => {
@@ -183,14 +183,14 @@ export default function Comments({ id }) {
         let newAction = c.userAction;
 
         if (c.userAction === "dislike") {
-          // 🔄 Undo dislike
+          //  Undo dislike
           newAction = null;
         } else if (c.userAction === "like") {
-          // 🔄 Switch like → dislike
+          //  Switch like → dislike
           newLikes = Math.max(c.likes - 1, 0);
           newAction = "dislike";
         } else {
-          // ✅ First dislike
+          //  First dislike
           newAction = "dislike";
         }
 

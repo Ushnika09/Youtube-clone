@@ -56,7 +56,7 @@ function Playvideo() {
         <VideoSec video={video} id={id}/>
         <Comments id={id} />
       </div>
-      <Sugesstion id={id} />
+      <Sugesstion id={id} query={video.query}/>
     </div>
   );
 }

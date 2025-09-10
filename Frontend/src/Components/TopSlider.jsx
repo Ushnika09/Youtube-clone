@@ -4,7 +4,7 @@ import { DataContext } from "../context/DataContext";
 
 function TopSlider() {
   const categories = [
-    "All",
+    "React",
     "Trending",
     "Music",
     "Gaming",
@@ -14,7 +14,7 @@ function TopSlider() {
     "Sports",
     "Learning",
     "Comedy",
-    "Videoblogging",
+    "India",
     "Drama",
   ];
 

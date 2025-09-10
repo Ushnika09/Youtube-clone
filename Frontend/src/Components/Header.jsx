@@ -40,28 +40,7 @@ function Header({ onMenuClick }) {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const fetchChannelId = async () => {
-  //     // If we already have a channel ID, no need to fetch
-  //     if (channelId) return;
 
-  //     if (user?.isChannel) {
-  //       setLoadingChannel(true);
-  //       try {
-  //         const res = await fetch(`/api/channels/user/${user._id}`);
-  //         const data = await res.json();
-
-  //         console.log(data);
-  //       } catch (err) {
-  //         console.error("Error fetching channel:", err);
-  //       } finally {
-  //         setLoadingChannel(false);
-  //       }
-  //     }
-  //   };
-
-  //   fetchChannelId();
-  // }, [user]);
 
   const handleLogout = () => {
   localStorage.removeItem("jwtYT");

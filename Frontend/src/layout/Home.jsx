@@ -9,6 +9,7 @@ const Videocard = React.lazy(() => import("../Components/Videocard"));
 function Home() {
   const { data, loading } = useData();
   const { mode } = useContext(ModeContext);
+  
 
   return (
     <div className="transition-all duration-300">
@@ -28,6 +29,7 @@ function Home() {
               }`}
             >
               {data.map((video) => (
+                
                 <Videocard key={video.videoId} video={video} mode={mode} />
               ))}
             </div>
