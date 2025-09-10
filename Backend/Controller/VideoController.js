@@ -10,7 +10,7 @@ const RAPIDAPI_HOST = "yt-api.p.rapidapi.com";
 // ✅ Get videos filtered by query
 export const getVideos = async (req, res) => {
   try {
-    const query = req.query.query || "New";
+    const query = req.query.query || "JavaScript";
     const videos = await Video.find({ query });
     res.json(videos);
   } catch (error) {
@@ -22,7 +22,7 @@ export const getVideos = async (req, res) => {
 // Seed videos safely, including detailed info
 export const seedVideos = async (req, res) => {
   try {
-    const query = req.query.query || req.body.query || "New";
+    const query = req.query.query || req.body.query || "JavaScript";
     console.log("Seeding videos for query:", query);
 
     //  Fetch search results

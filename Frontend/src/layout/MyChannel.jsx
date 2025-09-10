@@ -16,6 +16,7 @@ function MyChannel() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const { mode } = useContext(ModeContext);
+  const [refreshVideos, setRefreshVideos] = useState(false);
 
   useEffect(() => {
     const fetchChannel = async () => {
@@ -39,6 +40,28 @@ function MyChannel() {
     fetchChannel();
   }, [id]);
 
+  // Add this useEffect to handle video refresh
+  useEffect(() => {
+    if (!refreshVideos || !channel?._id) return;
+
+    const fetchVideos = async () => {
+      try {
+        const token = localStorage.getItem("jwtYT");
+        const res = await axios.get(
+          `http://localhost:5000/api/channel/${channel._id}/videos`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setChannel((prev) => ({ ...prev, videos: res.data }));
+      } catch (err) {
+        console.error("Failed to refresh videos", err);
+      } finally {
+        setRefreshVideos(false); // Reset the refresh flag
+      }
+    };
+
+    fetchVideos();
+  }, [refreshVideos, channel?._id]);
+
   const handleDeleteVideo = async (videoId) => {
     if (!channel?._id || !videoId) return;
     if (!window.confirm("Are you sure you want to delete this video?")) return;
@@ -49,10 +72,7 @@ function MyChannel() {
         `http://localhost:5000/api/channel/${channel._id}/video/${videoId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setChannel((prev) => ({
-        ...prev,
-        videos: prev.videos.filter((v) => v._id !== videoId),
-      }));
+      setRefreshVideos(true); // Trigger refresh instead of local state update
     } catch (err) {
       console.error(err);
       alert("Failed to delete video");
@@ -60,33 +80,46 @@ function MyChannel() {
   };
 
   const handleVideoUploaded = (newVideo) => {
-    setChannel((prev) => ({
-      ...prev,
-      videos: [...prev.videos, newVideo],
-    }));
+    setRefreshVideos(true); // Trigger refresh
   };
 
-  // Add this function to handle channel updates
   const handleChannelUpdated = (updatedChannel) => {
     setChannel(updatedChannel);
   };
 
   const handleVideoUpdated = (updatedVideo) => {
-    setChannel((prev) => ({
-      ...prev,
-      videos: prev.videos.map((v) =>
-        v._id === updatedVideo._id ? updatedVideo : v
-      ),
-    }));
+    setRefreshVideos(true); // Trigger refresh
   };
+
+  if (loading) {
+    return (
+      <div className={`min-h-screen pt-20 flex items-center justify-center ${mode ? "bg-gray-900" : "bg-gray-50"}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4">Loading channel...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen pt-20 flex items-center justify-center ${mode ? "bg-gray-900" : "bg-gray-50"}`}>
+        <div className="text-center p-6 bg-red-100 dark:bg-red-900/30 rounded-lg max-w-md">
+          <div className="text-red-700 dark:text-red-400 text-lg font-medium mb-2">
+            Error Loading Channel
+          </div>
+          <p className="text-red-600 dark:text-red-300">
+            {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!channel) {
     return (
-      <div
-        className={`min-h-screen pt-20 flex items-center justify-center ${
-          mode ? "bg-gray-900" : "bg-gray-50"
-        }`}
-      >
+      <div className={`min-h-screen pt-20 flex items-center justify-center ${mode ? "bg-gray-900" : "bg-gray-50"}`}>
         <div className="text-center p-6 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg max-w-md">
           <div className="text-yellow-700 dark:text-yellow-400 text-lg font-medium mb-2">
             Channel Not Found
@@ -100,11 +133,7 @@ function MyChannel() {
   }
 
   return (
-    <div
-      className={`min-h-screen ${
-        mode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-      }`}
-    >
+    <div className={`min-h-screen ${mode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
       {/* Fixed Banner */}
       <div className="relative ml-4 w-full h-56 bg-gradient-to-r from-blue-600 to-purple-600 overflow-hidden">
         {channel.bannerUrl ? (
@@ -150,11 +179,7 @@ function MyChannel() {
                 </div>
               </div>
 
-              <p
-                className={`text-sm md:text-base ${
-                  mode ? "text-gray-300" : "text-gray-600"
-                } mt-2`}
-              >
+              <p className={`text-sm md:text-base ${mode ? "text-gray-300" : "text-gray-600"} mt-2`}>
                 {channel.description}
               </p>
             </div>
@@ -198,6 +223,7 @@ function MyChannel() {
             channel={channel}
             onDeleteVideo={handleDeleteVideo}
             onVideoUpdated={handleVideoUpdated}
+            refreshVideos={refreshVideos}
           />
         ) : (
           <div className="text-center">
@@ -205,11 +231,7 @@ function MyChannel() {
               <GoVideo className="text-2xl text-white" />
             </div>
             <h3 className="text-xl font-semibold mb-1">No videos yet</h3>
-            <p
-              className={`mb-6 max-w-md mx-auto ${
-                mode ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
+            <p className={`mb-6 max-w-md mx-auto ${mode ? "text-gray-400" : "text-gray-500"}`}>
               Start sharing your videos with the world. Your audience is
               waiting!
             </p>

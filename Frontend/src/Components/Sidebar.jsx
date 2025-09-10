@@ -56,7 +56,7 @@ function Sidebar({ open }) {
                   <span className="text-sm">{item.name}</span>
                 </>
               ) : (
-                <div className="flex flex-col justify-center items-center w-full">
+                <div className="flex flex-col justify-center items-center w-full z-10">
                   <span className="text-xl">{item.icon}</span>
                   <span className="text-[0.7rem]">{item.name}</span>
                 </div>
