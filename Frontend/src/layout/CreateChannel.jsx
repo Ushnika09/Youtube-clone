@@ -12,6 +12,7 @@ function CreateChannel({ onClose }) {
   const [name, setName] = useState(user?.name || "");
   const [handle, setHandle] = useState(user ? `@${user.name.replace(/\s+/g, "")}` : "");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState(""); // ✅ added banner
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,21 +31,18 @@ function CreateChannel({ onClose }) {
       const token = localStorage.getItem("jwtYT");
       const res = await axios.post(
         "http://localhost:5000/api/channel/",
-        { name, handle, description, avatarUrl },
+        { name, handle, description, avatarUrl, bannerUrl }, // ✅ send banner
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const newChannel = res.data;
-      
+
       // Update user context
       setUser({ ...user, isChannel: true });
-      
+
       // Store channel ID in localStorage for immediate access
       localStorage.setItem("channelIdYT", newChannel._id);
-      
-      // Navigate to the channel page
-      navigate(`/my-channel/${newChannel._id}`);
-      
+
       onClose();
     } catch (err) {
       console.error(err);
@@ -55,13 +53,38 @@ function CreateChannel({ onClose }) {
   };
 
   return (
-    <div
+    <div className="max-h-[90vh] overflow-y-auto">
+      <div
       className={`w-full max-w-lg rounded-xl shadow-lg p-8 flex flex-col gap-6 ${
         mode ? "bg-[#181818] text-white" : "bg-white text-gray-900"
       }`}
     >
+      {/* Banner Preview */}
+      <div className="w-full h-40 rounded-lg overflow-hidden mb-4 bg-gray-200 flex items-center justify-center">
+        {bannerUrl ? (
+          <img
+            src={bannerUrl}
+            alt="Channel Banner"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-gray-500 text-sm">Channel Banner Preview</span>
+        )}
+      </div>
+      <input
+        type="text"
+        placeholder="Paste Banner Image URL"
+        value={bannerUrl}
+        onChange={(e) => setBannerUrl(e.target.value)}
+        className={`w-full px-4 py-2 rounded-md border mb-4 ${
+          mode
+            ? "bg-[#121212] border-gray-700 text-white"
+            : "bg-white border-gray-300 text-black"
+        }`}
+      />
+
       {/* Avatar Preview */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 mb-4">
         <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
           {avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -71,10 +94,10 @@ function CreateChannel({ onClose }) {
         </div>
         <input
           type="text"
-          placeholder="Paste Image URL"
+          placeholder="Paste Avatar Image URL"
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
-          className={`w-full px-4 py-2 rounded-md border mt-2 ${
+          className={`w-full px-4 py-2 rounded-md border ${
             mode
               ? "bg-[#121212] border-gray-700 text-white"
               : "bg-white border-gray-300 text-black"
@@ -145,6 +168,7 @@ function CreateChannel({ onClose }) {
           </button>
         </div>
       </form>
+    </div>
     </div>
   );
 }
