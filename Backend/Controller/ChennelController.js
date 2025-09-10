@@ -1,11 +1,80 @@
 import Channel from "../Model/ChannelSchema.js";
 import User from "../Model/UserModel.js";
 import mongoose from "mongoose";
+import Video from "../Model/VideoModel.js";
+
+
+// Add a video to a channel AND global Video collection
+export const addVideoToChannel = async (req, res) => {
+  try {
+    const { channelId } = req.params;
+    const { title, description, videoUrl, thumbnailUrl, lengthText } = req.body;
+
+    //  Find the channel
+    const channel = await Channel.findById(channelId);
+    if (!channel) return res.status(404).json({ message: "Channel not found" });
+
+    // Check authorization
+    if (channel.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // Create video object for channel
+    const newChannelVideo = {
+      title,
+      description,
+      videoUrl,
+      thumbnailUrl,
+      lengthText,
+      viewCount: 0,
+      likeCount: 0,
+      dislikeCount: 0,
+      publishedAt: new Date(),
+    };
+    channel.videos.push(newChannelVideo);
+    await channel.save();
+
+    const savedChannelVideo = channel.videos[channel.videos.length - 1];
+    const channelVideoId = savedChannelVideo._id.toString();
+
+    // Create video object for global Video collection
+    const newGlobalVideo = new Video({
+  videoId: channelVideoId, 
+  title,
+  description,
+  thumbnails: [{ url: thumbnailUrl }],
+  lengthText,
+  videoUrl,
+  viewCount: 0,
+  likeCount: 0,
+  dislikeCount: 0,
+  publishedTimeText: "Just now",
+  channelId: channel._id.toString(),
+  channelName: channel.name,
+  channelAvatar: channel.avatarUrl,
+  query: "User Upload",
+});
+
+
+    await newGlobalVideo.save();
+
+    //  Return both saved videos
+    res.status(201).json({
+      message: "Video added successfully",
+      channelVideo: savedChannelVideo,
+      globalVideo: newGlobalVideo,
+    });
+  } catch (err) {
+    console.error("Failed to add video:", err);
+    res.status(500).json({ message: "Failed to add video", details: err.message });
+  }
+};
+
 
 // Create a new channel
 export const createChannel = async (req, res) => {
   try {
-    const { name, handle, description, avatarUrl,bannerUrl } = req.body;
+    const { name, handle, description, avatarUrl, bannerUrl } = req.body;
 
     if (!name || !handle) {
       return res.status(400).json({ message: "Name and handle are required" });
@@ -37,14 +106,17 @@ export const createChannel = async (req, res) => {
       { new: true }
     );
 
-    res.status(201).json(newChannel);
+    //  return both channel + updated user
+    res.status(201).json({
+      message: "Channel created successfully",
+      channel: newChannel,
+      user: updatedUser,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to create channel" });
   }
 };
-
-
 
 // Get channel by user ID
 export const getChannelByUserId = async (req, res) => {
@@ -58,44 +130,6 @@ export const getChannelByUserId = async (req, res) => {
   }
 };
 
-// Add a video to a channel
-export const addVideoToChannel = async (req, res) => {
-  try {
-    const { channelId } = req.params;
-    const { title, description, videoUrl, thumbnailUrl, lengthText } = req.body;
-
-    const channel = await Channel.findById(channelId);
-    if (!channel) return res.status(404).json({ message: "Channel not found" });
-
-    if (channel.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
-    const newVideo = {
-      title,
-      description,
-      videoUrl,
-      thumbnailUrl,
-      lengthText,
-      viewCount: 0,
-      likeCount: 0,
-      dislikeCount: 0,
-      publishedAt: new Date(),
-    };
-
-    channel.videos.push(newVideo);
-    await channel.save();
-
-    // ✅ return only the newly created video (with _id)
-    const savedVideo = channel.videos[channel.videos.length - 1];
-    res.status(201).json(savedVideo);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to add video" });
-  }
-};
-
-
 
 // Delete a video from a channel
 export const deleteVideoFromChannel = async (req, res) => {
@@ -107,7 +141,9 @@ export const deleteVideoFromChannel = async (req, res) => {
 
     // Only channel owner can delete videos
     if (channel.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to delete video" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete video" });
     }
 
     // Find video index
@@ -131,7 +167,6 @@ export const deleteVideoFromChannel = async (req, res) => {
   }
 };
 
-
 // Update a channel (name, handle, description, avatar, banner)
 export const updateChannel = async (req, res) => {
   try {
@@ -147,7 +182,9 @@ export const updateChannel = async (req, res) => {
 
     // Only channel owner can update
     if (channel.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to update channel" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update channel" });
     }
 
     // Check if new handle is taken by another channel
@@ -171,7 +208,6 @@ export const updateChannel = async (req, res) => {
     res.status(500).json({ message: "Failed to update channel" });
   }
 };
-
 
 // Update a video inside a channel
 export const updateVideoInChannel = async (req, res) => {

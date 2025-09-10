@@ -35,14 +35,14 @@ export const seedVideos = async (req, res) => {
         },
       }
     );
-
+    // console.log(searchResp.data.data);
     const items = searchResp.data.data || [];
     if (!items.length) return res.status(404).json({ error: "No videos found from API" });
 
     //  For each video, fetch detailed info using video/info endpoint
     const detailedVideos = await Promise.all(
       items
-        .filter((v) => v.videoId && v.title)
+        .filter((v) => v.videoId && v.title && v.type=="video")
         .map(async (v) => {
           try {
             const detailResp = await axios.get(
@@ -56,17 +56,18 @@ export const seedVideos = async (req, res) => {
             );
 
             const detail = detailResp.data || {};
+            // console.log("detail",detail.data);
 
             return {
               videoId: v.videoId,
               title: v.title,
-              description: detail.description || v.description || "",
-              channelId: detail.author?.channelId || v.channelId || "",
-              channelName: detail.author?.title || v.channelTitle || "",
-              channelAvatar: detail.author?.avatar?.[0]?.url || v.channelAvatar?.[0]?.url || "",
+              description: detail.description || v.description ,
+              channelId: detail.author?.channelId || v.channelId ,
+              channelName: detail.author?.title || v.channelTitle ,
+              channelAvatar: detail.author?.avatar?.[0]?.url || v.channelAvatar?.[0]?.url ,
               thumbnails: v.thumbnail || [],
-              richThumbnail: v.richThumbnail?.[0]?.url || "",
-              lengthText: v.lengthText || "",
+              richThumbnail: v.richThumbnail?.[0]?.url ,
+              lengthText: v.lengthText || "0:15",
               viewCount: detail.viewCount || v.viewCount || 0,
               likeCount: detail.likeCount || 0,
               publishedTimeText: v.publishedTimeText || "",
@@ -203,5 +204,38 @@ export const updateLikes = async (req, res) => {
       error: "Failed to update likes/dislikes",
       details: error.message 
     });
+  }
+};
+
+
+
+// ✅ Get videos 
+export const getRandomVideos = async (req, res) => {
+  try {
+    const query = req.query.query || null ; // optional filter
+    const random = req.query.random === "true"; // ?random=true
+    let videos;
+
+    if (query) {
+      videos = await Video.find({ query });
+    } else {
+      videos = await Video.find();
+    }
+
+    if (!videos.length) {
+      return res.status(404).json({ error: "No videos found in DB" });
+    }
+
+    // Pick random 12 if requested
+    if (random) {
+      const limit = parseInt(req.query.limit, 10) || 12;
+      // Shuffle array and slice
+      videos = videos.sort(() => 0.5 - Math.random()).slice(0, limit);
+    }
+
+    res.status(200).json(videos);
+  } catch (error) {
+    console.error("Failed to fetch videos:", error);
+    res.status(500).json({ error: "Failed to fetch videos", details: error.message });
   }
 };
