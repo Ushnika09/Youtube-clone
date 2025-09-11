@@ -5,19 +5,23 @@ import ModeContext from "../context/ModeContext";
 import EditVideo from "../Pages/EditVideo";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { BiLoader } from "react-icons/bi";
 
 
-
-
-
-function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,refresh ,setRefresh}) {
+function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,}) {
   const [activeMenu, setActiveMenu] = useState(null);
   const [editingVideo, setEditingVideo] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { mode } = useContext(ModeContext);
   const navigate = useNavigate();
+  const [videos,setVideos]=useState([])
 
   const toggleMenu = (videoId) => setActiveMenu(activeMenu === videoId ? null : videoId);
+  
+  useEffect(()=>{
+    setVideos(channel?.videos)
+  },[channel])
+
 
   const openEditModal = (video, e) => {
     e.stopPropagation(); // Prevent card navigation
@@ -48,21 +52,10 @@ function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,refresh ,setRefresh
 
 
 
-  // Add this useEffect to handle refresh
-  useEffect(() => {
-    if (refresh) {
-      // This will force a re-render when refreshVideos changes
-      setActiveMenu(null);
-      setEditingVideo(null);
-      setIsEditOpen(false);
-    }
-  }, [refresh]);
-
-
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4.5">
-        {channel.videos.map((video) => (
+        {videos?.map((video) => (
           <div
             key={video._id}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col transition-transform hover:scale-[1.02] hover:shadow-lg relative cursor-pointer"
@@ -70,11 +63,16 @@ function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,refresh ,setRefresh
           >
             {/* Thumbnail */}
             <div className="relative">
+              {video?.thumbnailUrl ?
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
                 className="w-full h-40 object-cover"
-              />
+              /> : 
+              <div className="h-40 w-full flex items-center justify-center">
+                 <BiLoader className="animate-spin text-white"/>
+              </div>
+              }
               <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1.5 py-0.5 rounded">
                 {video.lengthText}
               </div>
@@ -93,25 +91,25 @@ function VideoGrid({ channel, onDeleteVideo, onVideoUpdated ,refresh ,setRefresh
                 </div>
 
                 {/* Three-dot menu */}
-                <div className="relative menu-container">
+                <div className="relative menu-container ">
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleMenu(video._id); }}
-                    className="p-1 rounded-full transition-colors"
+                    className="p-1 rounded-full transition-colors "
                   >
-                    <FaEllipsisV className="text-gray-600" />
+                    <FaEllipsisV className="text-gray-600 hover:cursor-pointer" />
                   </button>
 
                   {activeMenu === video._id && (
                     <div className={`absolute right-5 -top-10 mt-2 rounded-md shadow-lg py-1 z-[100] border min-w-[120px] ${mode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white"}`}>
                       <button
                         onClick={(e) => openEditModal(video, e)}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-blue-600 dark:text-blue-400"
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:cursor-pointer"
                       >
                         <GoPencil className="text-xs" /> Edit
                       </button>
                       <button
                         onClick={(e) => deleteVideo(video._id, e)}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 hover:cursor-pointer"
                       >
                         <FaTrash className="text-xs" /> Delete
                       </button>
