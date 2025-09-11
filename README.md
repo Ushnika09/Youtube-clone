@@ -6,8 +6,9 @@ It lets users explore and watch videos without login, while authenticated users 
 
 The backend integrates with **RapidAPI** to fetch and **seed trending videos** into the database, so the homepage always stays fresh with discoverable content.  
 
----
+🎥 **Demo Video:** [Watch here](https://www.loom.com/share/81f92b4e43914bf680cef547db9bec22?sid=33043924-68d0-46fb-8ffb-229e17f1fd36)  
 
+---
 ## ✨ **Features**
 
 - **Guest Access**  
