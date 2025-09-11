@@ -7,7 +7,7 @@ dotenv.config();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 const RAPIDAPI_HOST = "yt-api.p.rapidapi.com";
 
-// ✅ Get videos filtered by query
+//  Get videos filtered by query
 export const getVideos = async (req, res) => {
   try {
     const query = req.query.query || "JavaScript";
@@ -96,7 +96,7 @@ export const seedVideos = async (req, res) => {
 
     const result = await Video.bulkWrite(bulkOps);
 
-    console.log(`✅ Seeded ${result.upsertedCount} videos for query "${query}"`);
+    console.log(` Seeded ${result.upsertedCount} videos for query "${query}"`);
     res.status(201).json({
       message: `Videos for '${query}' seeded successfully`,
       insertedCount: result.upsertedCount,
@@ -209,7 +209,7 @@ export const updateLikes = async (req, res) => {
 
 
 
-// ✅ Get videos 
+//  Get videos 
 export const getRandomVideos = async (req, res) => {
   try {
     const query = req.query.query || null ; // optional filter
