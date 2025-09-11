@@ -1,12 +1,12 @@
 import axios from "axios";
 
-// const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY; //import.meta.env for frontend
+const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY; //import.meta.env for frontend
 const BASE_URL = 'https://yt-api.p.rapidapi.com'
 
 
 const options = {
 	headers: {
-		'x-rapidapi-key': 'ceed0aaf89msh7e49be7749279c0p1fb4d7jsn15ce62530237',
+		'x-rapidapi-key': API_KEY,
 		'x-rapidapi-host': 'yt-api.p.rapidapi.com'
 	}
 };
