@@ -32,6 +32,9 @@ The backend integrates with **RapidAPI** to fetch and **seed trending videos** i
 - **RapidAPI Integration**  
   - Fetch trending videos  
   - Seed into database for homepage discovery  
+  - **Comments Handling**  
+    - If RapidAPI quota/limit expires 🚫, external comments will **not** be fetched  
+    - Users will still see **only registered users’ comments** stored in our database   
 
 - **Responsive Design**  
   - Mobile-first design  
