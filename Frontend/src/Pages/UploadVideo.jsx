@@ -8,7 +8,7 @@ function UploadVideo({ isOpen, onClose, channelId, onVideoUploaded }) {
   const [description, setDescription] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [lengthText, setLengthText] = useState("");  // ✅ new state
+  const [lengthText, setLengthText] = useState(""); 
   const [loading, setLoading] = useState(false);
   const { mode } = useContext(ModeContext);
 
@@ -38,12 +38,13 @@ function UploadVideo({ isOpen, onClose, channelId, onVideoUploaded }) {
           description,
           thumbnailUrl,
           videoUrl,
-          lengthText, //  include length in payload
+          lengthText,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      onVideoUploaded(res.data);
+      console.log(res.data);
+      onVideoUploaded(res.data.globalVideo);
+      
       onClose();
     } catch (err) {
       console.error(err);
