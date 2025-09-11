@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { GoUpload, GoVideo, GoPencil } from "react-icons/go";
-import { RiUserFollowLine } from "react-icons/ri";
 import ModeContext from "../context/ModeContext";
 import UploadVideo from "../Pages/UploadVideo";
 import VideoGrid from "../Components/VideoGrid";
@@ -16,7 +15,6 @@ function MyChannel() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const { mode } = useContext(ModeContext);
-  const [refreshVideos, setRefreshVideos] = useState(false);
 
   useEffect(() => {
     const fetchChannel = async () => {
@@ -40,27 +38,27 @@ function MyChannel() {
     fetchChannel();
   }, [id]);
 
-  // Add this useEffect to handle video refresh
-  useEffect(() => {
-    if (!refreshVideos || !channel?._id) return;
 
-    const fetchVideos = async () => {
-      try {
-        const token = localStorage.getItem("jwtYT");
-        const res = await axios.get(
-          `http://localhost:5000/api/channel/${channel._id}/videos`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setChannel((prev) => ({ ...prev, videos: res.data }));
-      } catch (err) {
-        console.error("Failed to refresh videos", err);
-      } finally {
-        setRefreshVideos(false); // Reset the refresh flag
-      }
-    };
+  const handleVideoUploaded = (newVideo) => {
+  setChannel((prev) => {
+    if (!prev) return prev;
+    
+    const videoExists = prev.videos?.some(v => v._id === newVideo._id);
+    
+    if (videoExists) {
+      return {
+        ...prev,
+        videos: prev.videos.map(v => v._id === newVideo._id ? newVideo : v)
+      };
+    } else {
+      return {
+        ...prev,
+        videos: prev.videos ? [...prev.videos,newVideo] : [newVideo]
+      };
+    }
+  });
+};
 
-    fetchVideos();
-  }, [refreshVideos, channel?._id]);
 
   const handleDeleteVideo = async (videoId) => {
     if (!channel?._id || !videoId) return;
@@ -72,15 +70,19 @@ function MyChannel() {
         `http://localhost:5000/api/channel/${channel._id}/video/${videoId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setRefreshVideos(true); // Trigger refresh instead of local state update
+
+      // Remove locally so UI updates immediately
+      setChannel((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          videos: prev.videos ? prev.videos.filter((v) => v._id !== videoId) : [],
+        };
+      });
     } catch (err) {
       console.error(err);
       alert("Failed to delete video");
     }
-  };
-
-  const handleVideoUploaded = (newVideo) => {
-    setRefreshVideos(true); // Trigger refresh
   };
 
   const handleChannelUpdated = (updatedChannel) => {
@@ -88,34 +90,18 @@ function MyChannel() {
   };
 
   const handleVideoUpdated = (updatedVideo) => {
-    setRefreshVideos(true); // Trigger refresh
+    // Replace the updated video locally
+    setChannel((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        videos: prev.videos
+          ? prev.videos.map((v) => (v._id === updatedVideo._id ? updatedVideo : v))
+          : [updatedVideo],
+      };
+    });
   };
 
-  if (loading) {
-    return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${mode ? "bg-gray-900" : "bg-gray-50"}`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4">Loading channel...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={`min-h-screen pt-20 flex items-center justify-center ${mode ? "bg-gray-900" : "bg-gray-50"}`}>
-        <div className="text-center p-6 bg-red-100 dark:bg-red-900/30 rounded-lg max-w-md">
-          <div className="text-red-700 dark:text-red-400 text-lg font-medium mb-2">
-            Error Loading Channel
-          </div>
-          <p className="text-red-600 dark:text-red-300">
-            {error}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   if (!channel) {
     return (
@@ -223,7 +209,6 @@ function MyChannel() {
             channel={channel}
             onDeleteVideo={handleDeleteVideo}
             onVideoUpdated={handleVideoUpdated}
-            refreshVideos={refreshVideos}
           />
         ) : (
           <div className="text-center">
