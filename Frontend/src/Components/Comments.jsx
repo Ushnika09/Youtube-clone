@@ -6,7 +6,7 @@ import { PiThumbsDown, PiThumbsUpFill } from "react-icons/pi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import moment from "moment";
 
-export default function Comments({ id }) {
+export default function Comments({ id,}) {
   const { mode } = useContext(ModeContext);
   const { user } = useContext(UserContext);
 
@@ -50,6 +50,7 @@ export default function Comments({ id }) {
 
   // Merge both comments
   useEffect(() => {
+    
     const merged = [
       ...userComments.map((c) => ({
         _id: c._id,
@@ -70,10 +71,11 @@ export default function Comments({ id }) {
         createdAt: c.publishedTimeText,
         likes: c.likesCount || 0,
         thumbnail: c?.authorThumbnail?.[0]?.url,
-        userAction: null, // NEW
+        userAction: null, 
       })),
     ];
     setAllComments(merged);
+    
   }, [userComments, rapidComments]);
 
   // Add comment
