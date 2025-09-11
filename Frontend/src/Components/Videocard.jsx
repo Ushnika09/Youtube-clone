@@ -15,23 +15,17 @@ function Videocard({ video, mode }) {
             mode ? "text-white" : "text-black"
           }`}
         >
-          {video?.richThumbnail ? (
-            // Moving Thumbnail (string now)
-            <img
-              onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
-              className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0"
-              src={video?.richThumbnail}
-              alt={video?.title}
-            />
-          ) : (
-            // Normal Thumbnail (array from MongoDB)
-            <img
-              onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
-              className="rounded-lg w-full h-full transition-opacity duration-1200 opacity-0"
-              src={video?.thumbnails?.[0]?.url}
-              alt={video?.title}
-            />
-          )}
+          <img
+  onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
+  className="rounded-lg w-full h-48 object-cover transition-opacity duration-1200 opacity-50 bg-gray-700"
+  src={
+    video?.richThumbnail ||
+    video?.thumbnails?.[0]?.url ||
+    "/placeholder-thumbnail.jpg"
+  }
+  alt={video?.title || "No thumbnail"}
+/>
+
 
           {/* Timestamp */}
           {video?.lengthText && <VideoTimer time={video?.lengthText} />}
