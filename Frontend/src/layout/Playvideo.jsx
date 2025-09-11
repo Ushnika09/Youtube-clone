@@ -5,6 +5,7 @@ import axios from "axios";
 import Sugesstion from "../Components/Sugesstion";
 import VideoSec from "../Components/VideoSec";
 import Comments from "../Components/Comments";
+import { FiLoader } from "react-icons/fi";
 
 function Playvideo() {
   const { mode } = useContext(ModeContext);
@@ -21,6 +22,8 @@ function Playvideo() {
         const res = await axios.get(`http://localhost:5000/api/videos/${id}`);
         setVideo(res.data);
         console.log(res.data, "Playvideo backend");
+
+        
       } catch (err) {
         console.error("Video not found:", err.message);
         setVideo(null);
@@ -37,7 +40,7 @@ function Playvideo() {
       <div
         className={`${mode ? "bg-black text-white" : "bg-white text-black"} h-screen flex items-center justify-center`}
       >
-        Loading...
+        <FiLoader className={ ` text-3xl ${mode ? " text-white" : " text-black"}`}/>
       </div>
     );
 
